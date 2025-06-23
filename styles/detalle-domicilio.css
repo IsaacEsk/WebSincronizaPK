@@ -1,0 +1,393 @@
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 5px;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            display: grid;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+        .section-title {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.1em;
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
+        }
+        .info-item {
+            margin-bottom: 15px;
+        }
+        .info-item label {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .info-item input, .info-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .persona-card {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .persona-card:hover {
+            border-color: var(--secondary);
+            background: #f8fafc;
+        }
+        .persona-card h3 {
+            margin: 0 0 5px 0;
+            color: var(--primary);
+        }
+        .persona-card p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 15px;
+        }
+        .footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        * Textarea ajustable */
+.info-item textarea {
+    width: 100%;
+    min-height: 40px;
+    max-height: 100px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    resize: vertical; /* Permite ajuste vertical */
+}
+
+/* Input con scroll horizontal */
+.info-item input[type="text"].long-text {
+    white-space: nowrap;
+    overflow-x: auto;
+    min-width: 100px;
+    padding-right: 20px; /* Espacio para el scroll */
+}
+
+/* Contenedor de tabla con scroll */
+.table-container {
+    max-height: 200px; /* Altura fija */
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+/* Estilo de la tabla */
+.scrollable-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.scrollable-table th {
+    position: sticky;
+    top: 0;
+    background: #2c3e50;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+.scrollable-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.scrollable-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Scrollbar personalizado */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 4px;
+}
+
+.spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.filas-dinamicas tr[data-id] {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filas-dinamicas tr[data-id]:hover {
+    background-color: #f5f5f5;
+}
+
+.residente-popup {
+    font-size: 14px !important;
+    border-radius: 10px !important;
+}
+
+.residente-title {
+    font-size: 1.2em !important;
+    margin-bottom: 10px !important;
+}
+
+.residente-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.columna {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.campo label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.campo input, .campo textarea {
+    padding: 8px 10px !important;
+    font-size: 0.95em !important;
+    border-radius: 6px !important;
+    border: 1px solid #ddd !important;
+}
+
+.placa-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-placa {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85em;
+}
+
+.campo-radio {
+    margin-top: 5px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.radio-group label {
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.residente-grid .radio-group {
+    display: flex;
+    gap: 10px; /* Espacio entre opciones */
+    overflow-x: auto; /* Por si la pantalla es muy pequeña */
+}
+
+.campo-nombre {
+    grid-column: 1 / -1; /* Ocupa ambas columnas */
+    margin-bottom: 1rem;
+}
+
+.nombre-editable {
+    width: 100%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    border: 2px dashed #ccc; /* Borde estilo "editable" */
+    padding: 0.5rem;
+    background: #f9f9f9;
+}
+
+.trabajador-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.campo-nombre input {
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 1rem;
+}
+
+.campo-extra details {
+    grid-column: 1 / -1;
+    background: #f9f9f9;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.radio-group-estatus {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-option input {
+    margin-right: 6px;
+}
+
+.radio-label {
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.checkbox-dias {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.dia-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dia-option input {
+    margin-right: 3px;
+}
+
+.dia-option span {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* Estilo para el botón "Eliminar" */
+.swal2-deny-btn {
+    font-weight: bold;
+    border: 2px solid #d33 !important;
+}
+
+
+
+/* .radio-label.activo { background: #e6f7ee; color: #0a5c36; }
+.radio-label.mal-uso { background: #feeaea; color: #9b1c1c; }
+.radio-label.extravio { background: #fff8e6; color: #8e6a00; }
+.radio-label.vencimiento { background: #f0f0f0; color: #555; } */

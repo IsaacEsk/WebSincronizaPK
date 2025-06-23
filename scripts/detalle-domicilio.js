@@ -1,0 +1,1328 @@
+// components/detalle-domicilio.js
+
+//const BACKEND_HOST = 'http://localhost:3000';
+
+const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+
+// ========== CONFIGURACIÓN MQTT ========== //
+const getMqttTopic = () => {
+    try {
+        const condoString = localStorage.getItem('condominioSeleccionado');
+        if (!condoString) {
+            console.error('No se encontró condominio seleccionado en localStorage');
+            return 'query/default';
+        }
+        
+        const condo = JSON.parse(condoString);
+        if (!condo || !condo.id) {
+            console.error('Condominio no tiene estructura válida', condo);
+            return 'query/default';
+        }
+        
+        return `query/${condo.id}`;
+    } catch (error) {
+        console.error('Error al obtener topic MQTT:', error);
+        return 'query/error';
+    }
+};
+
+const originalFetch = window.fetch;
+window.fetch = async (url, options = {}) => {
+  const newOptions = {
+    ...options,
+    headers: {
+      ...options.headers,
+      'x-mqtt-topic': getMqttTopic()
+    }
+  };
+  return originalFetch(url, newOptions);
+};
+
+
+async function cargarCategorias() {
+    try {  
+        const response = await fetch(`${BACKEND_HOST}/api/search/categorias`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const { success, data } = await response.json();
+        if (!success) throw new Error('Error en los datos recibidos');
+
+        llenarComboCategorias(data); // Directo al combo, sin cache
+    } catch (error) {
+        console.error('Error cargando categorías:', error);
+        document.getElementById('categoria').innerHTML = `
+            <option value="">Error al cargar categorías</option>
+        `;
+    }
+}
+
+let cacheOficios = [];// Objetos para guardar los oficios
+
+async function cargarOficios() {
+    try {  
+        const response = await fetch(`${BACKEND_HOST}/api/search/oficios`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const { success, data } = await response.json();
+        if (!success) throw new Error('Error en los datos recibidos');
+
+        // 🔥 Guardamos en la variable global
+        cacheOficios = {};
+        cacheOficios = data;
+        //console.log("Oficios cargados:", cacheOficios); // Para debuggear
+
+    } catch (error) {
+        console.error('Error cargando oficios:', error);
+        // Opcional: Mostrar error en UI si es crítico
+    }
+}
+
+async function cargarCasetas() {
+    try {
+        const response = await fetch(`${BACKEND_HOST}/api/search/casetas`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const { success, data } = await response.json();
+        if (!success) throw new Error('Error en los datos recibidos');
+
+        llenarComboCasetas(data); // Sin cache, pura data fresca
+    } catch (error) {
+        console.error('Error cargando casetas:', error);
+        document.getElementById('caseta').innerHTML = `
+            <option value="">Error al cargar casetas</option>
+        `;
+    }
+}
+
+// ========== FUNCIONES AUXILIARES ========== //
+function llenarComboCategorias(data) {
+    const select = document.getElementById('categoria');
+    select.innerHTML = data.map(cat => 
+        `<option value="${cat.idconcepto}">${cat.concepto.trim()}</option>`
+    ).join('');
+}
+
+function llenarComboCasetas(data) {
+    const select = document.getElementById('caseta');
+    select.innerHTML = data.map(caseta => 
+        `<option value="${caseta.iddispositivo}">${caseta.nombre.trim()}</option>`
+    ).join('');
+}
+
+// === CACHE DE DATOS ===
+let cacheResidentes = {}; // Objeto para guardar residentes por IDcasa
+let cacheTrabajadores = {}; // Objeto para guardar residentes por IDcasa
+
+
+async function cargarResidentes(idCasa) {
+    try {
+        const response = await fetch(`${BACKEND_HOST}/api/search/residentescasa?query=${idCasa}`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const result = await response.json(); // Cambio clave aquí
+        //console.log("Respuesta del backend:", result); // 👈 Verifica la estructura aquí
+        if (!result.success) throw new Error('Error en los datos recibidos');
+        
+        // 🔥 Guardamos en cache!
+        cacheResidentes={};
+        cacheResidentes = result.data;
+        //console.log(cacheResidentes);
+        const tbody = document.getElementById('residentes-list');
+        tbody.innerHTML = result.data.map(residente => `
+            <tr data-id="${residente.idresidente}" data-tipo="residente">
+                <td>${residente.nombre || '  '}</td>
+                <td>${residente.auto || '  '}</td>
+                <td>${residente.placa || '  '}</td>
+                <td>${residente.passw || '0'}</td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error cargando residentes:', error);
+        document.getElementById('residentes-list').innerHTML = `
+            <tr><td colspan="4" class="error">⚠️ Error al cargar residentes</td></tr>
+        `;
+    }
+}
+
+async function cargarTrabajadores(idCasa) {
+    try {
+        const response = await fetch(`${BACKEND_HOST}/api/search/trabajadorescasa?query=${idCasa}`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const result = await response.json(); // Cambio clave aquí
+        if (!result.success) throw new Error('Error en los datos recibidos');
+
+          // 🔥 Guardamos en cache!
+        cacheTrabajadores={};
+        cacheTrabajadores = result.data;
+        //console.log(cacheTrabajadores);
+
+        const tbody = document.getElementById('trabajadores-list');
+        tbody.innerHTML = result.data.map(trabajador => `
+            <tr data-id="${trabajador.idtrabajador}" data-tipo="trabajador">
+                <td>${trabajador.nombre || '  '}</td>
+                <td>${trabajador.nombre_oficio || '  '}</td>
+                <td>${trabajador.f_baja ? new Date(trabajador.f_baja).toLocaleDateString('es-MX') : '  '}</td>
+                <td>${trabajador.passw || '0'}</td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error cargando trabajadores:', error);
+        document.getElementById('trabajadores-list').innerHTML = `
+            <tr><td colspan="3" class="error">⚠️ Error al cargar trabajadores</td></tr>
+        `;
+    }
+}
+
+// ========== PANTALLA DE CARGA ========== //
+function mostrarLoader(mostrar) {
+    const loader = document.getElementById('loader');
+    const contenido = document.getElementById('contenido-principal');
+    
+    if (mostrar) {
+        loader.style.display = 'flex';
+        contenido.style.display = 'none';
+    } else {
+        loader.style.display = 'none';
+        contenido.style.display = 'block';
+    }
+}
+
+let idCasacache;
+let idCasetacache;
+
+// 1. Variables para control de cambios
+let valoresIniciales = {};
+let haCambiado = false;
+
+// ========== CARGA PRINCIPAL ========== //
+async function cargarDomicilioCompleto() {
+    mostrarLoader(true);
+    
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const idCasa = urlParams.get('id');
+        idCasacache = idCasa;
+        if (!idCasa) throw new Error('ID de casa no proporcionado');
+
+        // Cargar datos en paralelo
+        await Promise.all([
+           await cargarCategorias(),
+           await cargarCasetas(),
+           await cargarOficios()
+        ]);
+
+        // Cargar datos de la casa
+        const response = await fetch(`${BACKEND_HOST}/api/search/idcasa?query=${idCasa}`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const { success, data } = await response.json();
+        if (!success || !data.length) throw new Error('Domicilio no encontrado');
+
+        const casa = data[0];
+        
+
+        // Llenar campos
+        document.getElementById('direccion').value = casa.direccion || '  ';
+        document.getElementById('lote').value = casa.lote || '  ';
+        document.getElementById('restriccion').value = casa.restriccion || '  ';
+        document.getElementById('contrato').value = casa.contrato || '0';
+        document.getElementById('telefono').value = casa.tel || '';
+        
+        idCasetacache = casa.caseta;
+        
+        const fechaCuota = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
+        document.getElementById('fecha-cuota').value = fechaCuota;
+
+        // Seleccionar categoría y caseta
+        const selectCategoria = document.getElementById('categoria');
+        const selectCaseta = document.getElementById('caseta');
+        
+        selectCategoria.value = casa.categoria || '';
+        selectCaseta.value = casa.caseta || '';
+
+        // Checkboxes
+        document.getElementById('permiso-residentes').checked = casa.picol === 1;
+        document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+
+        // Cargar residentes y trabajadores
+        await Promise.all([
+            await cargarResidentes(idCasa),
+            await cargarTrabajadores(idCasa)
+        ]);
+        valoresIniciales = obtenerDatosFormulario();
+
+    } catch (error) {
+        console.error('Error crítico:', error);
+        alert('⚠️ Error al cargar el domicilio. Por favor recarga la página.');
+    } finally {
+        mostrarLoader(false);
+    }
+}
+
+
+// === FUNCIÓN PARA MANEJAR EL CLICK EN FILAS (VERSIÓN PRO) ===
+document.querySelector('.main-content').addEventListener('click', (e) => {
+    const fila = e.target.closest('tr[data-id]');
+    if (!fila) return;
+
+    const id = fila.getAttribute('data-id');
+    const tipo = fila.closest('#residentes-list') ? 'residente' : 'trabajador'; // Identifica la tabla
+
+    console.log("Tipo:", tipo); // Debug
+    if (tipo === 'trabajador') {
+        abrirDetalleTrabajador(id);
+    } else {
+        abrirDetalleResidente(id);
+    }
+});
+
+
+// Normaliza texto: mayúsculas, sin acentos, ni caracteres raros
+function normalizarTexto(texto) {
+    return texto
+        .normalize("NFD") // Separa acentos
+        .replace(/[\u0300-\u036f]/g, "") // Elimina acentos
+        .replace(/[^a-zA-Z0-9\s]/g, "") // Solo letras, números y espacios
+        .toUpperCase();
+}
+
+// Normaliza placas: solo letras/números en mayúsculas
+function normalizarPlaca(placa) {
+    return placa
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "") // Elimina TODO lo que no sea alfanumérico
+        .toUpperCase();
+}
+
+// === FUNCIÓN DE EJEMPLO PARA DETALLE DE TRABAJADOR ===
+function abrirDetalleTrabajador(idTrabajador) {
+    const trabajador = cacheTrabajadores.find(t => t.idtrabajador == idTrabajador);
+    if (!trabajador) return;
+
+    const fechaAlta = trabajador.f_alta ? new Date(trabajador.f_alta).toLocaleDateString('es-MX') : '  ';
+    const fechaBaja = trabajador.f_baja ? new Date(trabajador.f_baja).toLocaleDateString('es-MX') : '  ';
+    const fechaBajaInput = trabajador.f_baja ? trabajador.f_baja.split('T')[0] : '';
+    const selectOficio = `
+    <select id="selectOficio" class="form-control">
+        ${cacheOficios.map(oficio => `
+            <option value="${oficio.idconcepto}" ${trabajador.oficio == oficio.idconcepto ? 'selected' : ''}>
+                ${oficio.concepto}
+            </option>
+        `).join('')}
+    </select>
+`;
+    const diasSemana = [
+    { id: 'L', nombre: 'Lunes', pos: 0 },
+    { id: 'M', nombre: 'Martes', pos: 1 },
+    { id: 'I', nombre: 'Miércoles', pos: 2 }, // "I" para evitar confusión con "M" (Martes)
+    { id: 'J', nombre: 'Jueves', pos: 3 },
+    { id: 'V', nombre: 'Viernes', pos: 4 },
+    { id: 'S', nombre: 'Sábado', pos: 5 },
+    { id: 'D', nombre: 'Domingo', pos: 6 }
+    ];
+
+    Swal.fire({
+        title: `<small>DETALLE TRABAJADOR</small>`,
+        html: `
+            <div class="trabajador-grid">
+                <!-- 🔥 Nombre completo (editable) -->
+                <div class="campo-nombre">
+                    <input type="text" value="${trabajador.nombre || '  '}" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE">
+                </div>
+
+                <!-- Columna Izquierda -->
+                <div class="columna">
+                    <div class="campo">
+                        <label>Oficio</label>
+                        ${selectOficio}
+                    </div>
+                    <div class="campo">
+                        <label>N° TAG</label>
+                        <input type="text" value="${trabajador.passw || '  '}" readonly id="inputTag">
+                    </div>
+                    <div class="campo">
+                        <label>Fecha Alta</label>
+                        <input type="text" value="${fechaAlta}" readonly>
+                    </div>
+                    <div class="campo-checkbox">
+                        <label>
+                            <input type="checkbox" id="checkDuerme" ${trabajador.duerme_domicilio ? 'checked' : ''}>
+                            Duerme en el domicilio
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="columna">
+                    <div class="campo">
+                        <label>Estatus TAG</label>
+                        <div class="radio-group-estatus">
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="1" ${trabajador.pitra == 1 ? 'checked' : ''}>
+                                <span class="radio-label activo">Activo</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="2" ${trabajador.pitra == 2 ? 'checked' : ''}>
+                                <span class="radio-label mal-uso">Mal uso</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="3" ${trabajador.pitra == 3 ? 'checked' : ''}>
+                                <span class="radio-label extravio">Extravío</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="4" ${trabajador.pitra == 4 ? 'checked' : ''}>
+                                <span class="radio-label vencimiento">Vencimiento/Día</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="campo-dias">
+                        <label>ASISTE LOS DÍAS:</label>
+                        <div class="checkbox-dias">
+                            ${diasSemana.map(dia => {
+                                const isChecked = trabajador.dias && trabajador.dias[dia.pos] === '1';
+                                return `
+                                    <label class="dia-option">
+                                        <input type="checkbox" ${isChecked ? 'checked' : ''} data-dia="${dia.pos}">
+                                        <span>${dia.id}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    <div class="campo">
+                        <label>Fecha Baja</label>
+                        
+                        <input type="date" id="inputFechaBaja" value="${fechaBajaInput}">
+                    </div>
+                    <div class="campo">
+                        <label>Observaciones</label>
+                        <textarea id="textareaObs">${trabajador.obs || 'Sin observaciones'}</textarea>
+                    </div>
+                </div>
+
+                <!-- 🔥 Sección de Datos Personales (expandible) -->
+                <div class="campo-extra">
+                    <details>
+                        <summary>📝 Datos personales</summary>
+                        <div class="subgrid">
+                            <div class="campo">
+                                <label>Calle</label>
+                                <input type="text" value="${trabajador.calle || '  '}" id="inputCalle">
+                            </div>
+                            <div class="campo">
+                                <label>Colonia</label>
+                                <input type="text" value="${trabajador.colonia || '  '}" id="inputColonia">
+                            </div>
+                            <div class="campo">
+                                <label>Teléfono</label>
+                                <input type="tel" value="${trabajador.tel || '  '}" id="inputTelefono">
+                            </div>
+                            <div class="campo">
+                                <label>C.P.</label>
+                                <input type="text" value="${trabajador.cp || '  '}" id="inputCP">
+                            </div>
+                            <div class="campo">
+                                <label>Encargado</label>
+                                <input type="text" value="${trabajador.encargado || '  '}" id="inputEncargado">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        width: '800px',
+        padding: '1.5rem',
+        showDenyButton: true, // 👈 Activamos el botón de eliminar
+        denyButtonText: 'Eliminar',
+        denyButtonColor: '#d33', // Rojo para peligro
+        preConfirm: () => {
+            // 🔥 Validación 1: Nombre (mínimo 4 caracteres)
+            const nombreInput = document.getElementById('inputNombre').value.trim();
+            if (nombreInput.length < 4) {
+                Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+
+            // 🔥 Validación 2: N° TAG (entre 0 y 16,777,215)
+            const tagInput = document.getElementById('inputTag').value.trim();
+            const tagNumber = parseInt(tagInput);
+            if (isNaN(tagNumber)) {
+                Swal.showValidationMessage("❌ El TAG debe ser un número válido");
+                return false;
+            }
+            if (tagNumber < 0 || tagNumber > 16777215) {
+                Swal.showValidationMessage("❌ El TAG debe estar entre 0 y 16,777,215");
+                return false;
+            }
+
+            // 🔥 Validación 3: Oficio seleccionado (no vacío)
+            const selectOficio = document.getElementById('selectOficio');
+            if (!selectOficio || selectOficio.value === "") {
+                Swal.showValidationMessage("❌ Selecciona un oficio para el trabajador");
+                return false;
+            }
+            
+            return {
+                nombre: document.getElementById('inputNombre').value.trim().toUpperCase(),
+                oficio: document.getElementById('selectOficio').value, 
+                passw: document.getElementById('inputTag').value,
+                duerme_domicilio: document.getElementById('checkDuerme').checked,
+                estatus: document.querySelector('input[name="estatus"]:checked')?.value,
+                f_baja: document.getElementById('inputFechaBaja').value,
+                obs: document.getElementById('textareaObs').value.trim().toUpperCase(),
+                calle: document.getElementById('inputCalle').value.trim().toUpperCase(),
+                colonia: document.getElementById('inputColonia').value.trim().toUpperCase(),
+                telefono: document.getElementById('inputTelefono').value.trim().toUpperCase(),
+                cp: document.getElementById('inputCP').value.trim().toUpperCase()
+            };
+        },
+        customClass: {
+            popup: 'trabajador-popup',
+            title: 'trabajador-title',
+            htmlContainer: 'trabajador-html'
+        }
+}).then(async (result) => {
+
+    if (result.isDenied) {
+            const confirmacion = await Swal.fire({
+                title: '¿Eliminar trabajador?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirmacion.isConfirmed) {
+                try {
+                    // 🔥 FETCH para eliminar trabajador
+                    const response = await fetch(`${BACKEND_HOST}/api/trabajador/eliminar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            idtrabajador: idTrabajador,
+                            passw: trabajador.passw || 0 // Enviar 0 si no tiene TAG
+                        })
+                    });
+                    
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire(
+                            '¡Eliminado!', 
+                            'El trabajador fue desactivado', 
+                            'success'
+                        );
+                        
+                            await cargarTrabajadores(trabajador.idcasa);
+
+                    } else {
+                        throw new Error(data.error || 'Error al eliminar');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        }
+
+
+    else if (result.isConfirmed) {
+        try {
+            // 🔥 Preparar los datos para el endpoint
+            const datosTrabajador = {
+                idtrabajador: idTrabajador,
+                nombre: result.value.nombre,
+                idcasa: trabajador.idcasa || 0,
+                pitra: parseInt(result.value.estatus) || 1,
+                idfoto: trabajador.idfoto || 0,
+                idfoto2: trabajador.idfoto2 || 0,
+                obs: result.value.obs,
+                passw: parseInt(result.value.passw) || 0,
+                calle: result.value.calle,
+                colonia: result.value.colonia,
+                tel: result.value.telefono,
+                cp: result.value.cp,
+                encargado: result.value.encargado,
+                oficio: parseInt(result.value.oficio),
+                h24: trabajador.h24 || 0,
+                dias: obtenerDiasSeleccionados(),
+                f_baja: result.value.f_baja || null,
+                idusuario: 1,
+                casetalog: trabajador.grupo || 0
+            };
+
+            // 🛠️ Función para los días (sincrona, no necesita async)
+            function obtenerDiasSeleccionados() {
+                const diasArray = Array(7).fill('0');
+                document.querySelectorAll('.checkbox-dias input[type="checkbox"]:checked').forEach(checkbox => {
+                    const pos = parseInt(checkbox.getAttribute('data-dia'));
+                    diasArray[pos] = '1';
+                });
+                return diasArray.join('');
+            }
+
+            // 🚀 FETCH al endpoint (versión async/await puro)
+            const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosTrabajador)
+            });
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Error desconocido');
+            }
+
+            Swal.fire('¡Guardado!', 'Datos actualizados correctamente', 'success');
+            await cargarTrabajadores(trabajador.idcasa); // Asegúrate de que esta función sea async
+   
+            
+        } catch (error) {
+            console.error('Error al guardar:', error);
+            Swal.fire('Error', `No se pudo guardar: ${error.message}`, 'error');
+        }
+    }
+});
+}
+
+function abrirDetalleResidente(idResidente) {
+    const residente = cacheResidentes.find(r => r.idresidente == idResidente);
+    if (!residente) return;
+
+    const fechaAlta = residente.f_alta ? new Date(residente.f_alta).toLocaleDateString('es-MX') : '  ';
+
+    Swal.fire({
+        title: `<small>DETALLE RESIDENTE</small>`,
+        html: `
+            <div class="residente-grid">
+                <!-- Campo de NOMBRE EDITABLE (NUEVO) -->
+                <div class="campo-nombre">
+                    <input type="text" value="${residente.nombre}" id="inputNombre" class="nombre-editable">
+                </div>
+                <!-- Columna Izquierda -->
+                <div class="campo">
+                    <label>Automóvil</label>
+                    <input type="text" value="${residente.auto || ''}" id="inputAuto"> <!-- Quitamos readonly -->
+                </div>
+                <div class="campo">
+                    <label>Placa</label>
+                    <div class="placa-wrapper">
+                        <input type="text" value="${residente.placa || '  '}" id="inputPlaca"> <!-- Quitamos readonly -->
+                        <!--label class="checkbox-placa">
+                            <input type="checkbox" id="checkPlacaOscura" ${residente.placa_oscura ? 'checked' : ''}> Fondo oscuro
+                        </label-->
+                    </div>
+                </div>
+                <div class="campo">
+                    <label>Fecha Alta</label>
+                    <input type="text" value="${fechaAlta}" readonly> <!-- Este SÍ sigue bloqueado -->
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="campo">
+                    <label>N° TAG</label>
+                    <input type="text" value="${residente.passw || '0'}" id="inputTag" readonly> <!-- Quitamos readonly -->
+                </div>
+                <div class="campo">
+                    <label>Observaciones</label>
+                    <textarea id="textareaObs">${residente.obs || 'Sin observaciones'}</textarea> <!-- Quitamos readonly -->
+                </div>
+                <div class="campo-radio">
+                    <label>Estado de acceso:</label>
+                    <div class="radio-group" style="white-space: nowrap;"> <!-- ¡Fix para "extravío" en una línea! -->
+                        <label><input type="radio" name="estado" ${residente.picol == 1 ? 'checked' : ''} value="1"> Permitir ingreso</label>
+                        <label><input type="radio" name="estado" ${residente.picol == 2 ? 'checked' : ''} value="2"> Mal uso</label>
+                        <label><input type="radio" name="estado" ${residente.picol == 3 ? 'checked' : ''} value="3"> Extravío</label>
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        showDenyButton: true, // 👈 Botón adicional (Eliminar)
+        denyButtonText: 'Eliminar',
+        denyButtonColor: '#d33', // Rojo para peligro
+        focusConfirm: false,
+        width: '750px',
+        didOpen: () => {
+            // Aquí podrías agregar event listeners si necesitas validaciones extra
+        },
+        preConfirm: () => {
+            // Lógica para guardar los cambios (ejemplo):
+            // --- Normalización y validación ---
+            // 1️⃣ NOMBRE (mínimo 4 caracteres, mayúsculas y sin acentos)
+            const nombreInput = document.getElementById('inputNombre').value.trim();
+            if (nombreInput.length < 4) {
+                Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            const nombreNormalizado = normalizarTexto(nombreInput);
+
+            // 2️⃣ PLACA (mínimo 4 caracteres, mayúsculas, solo letras/números)
+            const placaInput = document.getElementById('inputPlaca').value.trim();
+            if (placaInput.length < 4) {
+                Swal.showValidationMessage("❌ La placa debe tener al menos 4 caracteres");
+                return false;
+            }
+            const placaNormalizada = normalizarPlaca(placaInput); // Limpia y convierte a mayúsculas
+
+            // 3️⃣ TAG (número entero válido y dentro del rango)
+            const tagInput = document.getElementById('inputTag').value.trim();
+            const tagNumero = parseInt(tagInput);
+            if (isNaN(tagNumero)) {
+                Swal.showValidationMessage("❌ El TAG debe ser un número válido");
+                return false;
+            }
+            if (tagNumero < 0 || tagNumero > 16777215) {
+                Swal.showValidationMessage("❌ El TAG debe estar entre 0 y 16,777,215");
+                return false;
+            }
+
+            // 4️⃣ AUTO y OBS (solo normalización, pueden estar vacíos)
+            const autoNormalizado = normalizarTexto(document.getElementById('inputAuto').value);
+            const obsNormalizada = normalizarTexto(document.getElementById('textareaObs').value);
+
+            // --- Retornamos el objeto normalizado ---
+            return {
+                nombre: nombreNormalizado,
+                auto: autoNormalizado,
+                placa: placaNormalizada,
+                placa_oscura: placaNormalizada.checked,
+                passw: tagNumero,
+                obs: obsNormalizada,
+                picol: parseInt(document.querySelector('input[name="estado"]:checked').value),
+                // Campos adicionales para el endpoint:
+                idfoto: residente.idfoto,
+                idcasa: residente.idcasa,          // <- Asegúrate de que esto esté disponible
+                idusuario: 1,             // <- Ejemplo: ID del usuario logueado
+                casetalog: residente.grupo                       // <- Ajusta según tu lógica
+            };
+
+
+            // return {
+            //     nombre: document.getElementById('inputNombre').value,
+            //     auto: document.getElementById('inputAuto').value,
+            //     placa: document.getElementById('inputPlaca').value,
+            //     placa_oscura: document.getElementById('checkPlacaOscura').checked,
+            //     passw: document.getElementById('inputTag').value,
+            //     obs: document.getElementById('textareaObs').value,
+            //     picol: document.querySelector('input[name="estado"]:checked')?.value || residente.picol
+            // };
+        },
+        customClass: {
+            popup: 'residente-popup',
+            title: 'residente-title',
+            htmlContainer: 'residente-html',
+            denyButton: 'swal2-deny-btn' // 👈 Clase CSS personalizada (opcional)
+        }
+    }).then(async (result) => {
+        
+        // 🔴 CASO 1: ELIMINAR
+        if (result.isDenied) {
+            const confirmacion = await Swal.fire({
+                title: '¿Seguro que quieres ELIMINAR?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, bórralo',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirmacion.isConfirmed) {
+                try {
+                    // 🔥 FETCH para eliminar
+                    console.log(idResidente);
+                    console.log(residente.passw );
+                    const response = await fetch(`${BACKEND_HOST}/api/residente/eliminar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            idresidente: idResidente,
+                            passw: residente.passw // 👈 Asegúrate de que residente.passw exista
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire('¡Eliminado!', 'El residente se borró correctamente', 'success');
+                        // Recargar datos o cerrar modal
+                        if (typeof cargarResidentes === 'function') await cargarResidentes(residente.idcasa);
+                    } else {
+                        throw new Error(data.error || 'Error al eliminar');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', error.message, 'error');
+                }
+            }
+        }
+
+        else if (result.isConfirmed) {
+            const datos = result.value;
+            datos.idresidente = idResidente || 0;  // Si es 0, la función hace INSERT
+            
+            console.log(datos);
+            // 🔥 Mostrar loader mientras se guarda
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // Llamar al endpoint
+                const response = await fetch(`${BACKEND_HOST}/api/residente/guardar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire('¡Guardado!', 'Los cambios se aplicaron correctamente', 'success');
+                    // Recargar datos o actualizar la UI (ej: refrescar la tabla)
+                    
+                    if (typeof cargarResidentes === 'function') await cargarResidentes(residente.idcasa);
+                } else {
+                    throw new Error(data.error || 'Error al guardar');
+                }
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
+        }
+    });
+}
+
+async function validarTag(tag) {
+  try {
+    const response = await fetch(`${BACKEND_HOST}/api/tags/validar?tag=${tag}`);
+    const data = await response.json();
+    return data.duplicado; // true o false
+  } catch (error) {
+    console.error("Error validando TAG:", error);
+    return false; // Por defecto, no bloquear si hay error en la API
+  }
+}
+
+
+function abrirNuevoResidente(idCasa) {
+    Swal.fire({
+        title: `<small>NUEVO RESIDENTE</small>`,
+        html: `
+            <div class="residente-grid">
+                <!-- Campo de NOMBRE EDITABLE -->
+                <div class="campo-nombre">
+                    <input type="text" placeholder="Ej. Juan Pérez" id="inputNombre" class="nombre-editable">
+                </div>
+                <!-- Columna Izquierda -->
+                <div class="campo">
+                    <label>Automóvil</label>
+                    <input type="text" placeholder="Ej. Toyota Corolla" id="inputAuto">
+                </div>
+                <div class="campo">
+                    <label>Placa</label>
+                    <div class="placa-wrapper">
+                        <input type="text" placeholder="Ej. ABC123" id="inputPlaca">
+                    </div>
+                </div>
+                <div class="campo">
+                    <label>Fecha Alta</label>
+                    <input type="text" value="${new Date().toLocaleDateString('es-MX')}" readonly>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="campo">
+                    <label>N° TAG</label>
+                    <input type="text" value="0" id="inputTag">
+                </div>
+                <div class="campo">
+                    <label>Observaciones</label>
+                    <textarea id="textareaObs" placeholder="Ej. Vehículo azul"></textarea>
+                </div>
+                <div class="campo-radio">
+                    <label>Estado de acceso:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="estado" checked value="1"> Permitir ingreso</label>
+                        <label><input type="radio" name="estado" value="2"> Mal uso</label>
+                        <label><input type="radio" name="estado" value="3"> Extravío</label>
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        showDenyButton: false, // 👈 Sin botón de eliminar
+        focusConfirm: false,
+        width: '750px',
+        didOpen: () => {
+            // Puedes agregar lógica adicional si necesitas
+        },
+        preConfirm: async() => {
+            // --- Validación (igual que en edición) ---
+            const nombreInput = document.getElementById('inputNombre').value.trim();
+            if (nombreInput.length < 4) {
+                Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            const nombreNormalizado = normalizarTexto(nombreInput);
+
+            const placaInput = document.getElementById('inputPlaca').value.trim();
+            if (placaInput.length < 4) {
+                Swal.showValidationMessage("❌ La placa debe tener al menos 4 caracteres");
+                return false;
+            }
+            const placaNormalizada = normalizarPlaca(placaInput);
+
+            const tagInput = document.getElementById('inputTag').value.trim();
+            const tagNumero = parseInt(tagInput);
+
+            if (isNaN(tagNumero)) {
+                Swal.showValidationMessage("❌ El TAG debe ser un número válido");
+                return false;
+            }
+            if (tagNumero < 0 || tagNumero > 16777215) {
+                Swal.showValidationMessage("❌ El TAG debe estar entre 0 y 16,777,215");
+                return false;
+            }
+
+            // 🔥🔥🔥 NUEVA VALIDACIÓN: ¿El TAG ya existe? 🔥🔥🔥
+            if(tagNumero>0)
+            {
+                const tagDuplicado = await validarTag(tagNumero);
+                if (tagDuplicado) {
+                    Swal.showValidationMessage("❌ Este TAG ya está en uso. ¡Elige otro!");
+                    return false;
+                }
+            }
+
+            // 4️⃣ AUTO y OBS (solo normalización, pueden estar vacíos)
+            const autoNormalizado = normalizarTexto(document.getElementById('inputAuto').value);
+            const obsNormalizada = normalizarTexto(document.getElementById('textareaObs').value);
+            
+
+            return {
+                nombre: nombreNormalizado,
+                auto: autoNormalizado,
+                placa: placaNormalizada,
+                placa_oscura: placaNormalizada.checked,
+                passw: tagNumero,
+                obs: obsNormalizada,
+                picol: parseInt(document.querySelector('input[name="estado"]:checked').value),
+                // Campos adicionales para el endpoint:
+                idfoto: 0,
+                idcasa: idCasacache,          // <- Asegúrate de que esto esté disponible
+                idusuario: 1,             // <- Ejemplo: ID del usuario logueado
+                casetalog: idCasetacache                       // <- Ajusta según tu lógica
+            };
+        },
+        customClass: {
+            popup: 'residente-popup',
+            title: 'residente-title',
+            htmlContainer: 'residente-html'
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const datos = result.value;
+            datos.idresidente = 0; // 👈 0 indica que es un INSERT (no UPDATE)
+
+            // 🔥 Mostrar loader mientras se guarda
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // Llamar al endpoint (mismo que en edición)
+                const response = await fetch(`${BACKEND_HOST}/api/residente/guardar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire('¡Guardado!', 'Residente agregado correctamente', 'success');
+                    // Recargar la lista de residentes
+                    if (typeof cargarResidentes === 'function') await cargarResidentes(idCasacache);
+                } else {
+                    throw new Error(data.error || 'Error al guardar');
+                }
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
+        }
+    });
+}
+
+function abrirNuevoTrabajador() {
+    // Fecha actual formateada
+    const fechaActual = new Date().toLocaleDateString('es-MX');
+    
+    Swal.fire({
+        title: `<small>NUEVO TRABAJADOR</small>`,
+        html: `
+            <div class="trabajador-grid">
+                <!-- 🔥 Nombre completo -->
+                <div class="campo-nombre">
+                    <input type="text" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE">
+                </div>
+
+                <!-- Columna Izquierda -->
+                <div class="columna">
+                    <div class="campo">
+                        <label>Oficio</label>
+                        <select id="selectOficio" class="form-control">
+                            ${cacheOficios.map(oficio => `
+                                <option value="${oficio.idconcepto}">${oficio.concepto}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label>N° TAG</label>
+                        <input type="text" id="inputTag" value="0">
+                    </div>
+                    <div class="campo">
+                        <label>Fecha Alta</label>
+                        <input type="text" value="${fechaActual}" readonly>
+                    </div>
+                    <div class="campo-checkbox">
+                        <label>
+                            <input type="checkbox" id="checkDuerme">
+                            Duerme en el domicilio
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="columna">
+                    <div class="campo">
+                        <label>Estatus TAG</label>
+                        <div class="radio-group-estatus">
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="1" checked>
+                                <span class="radio-label activo">Activo</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="2">
+                                <span class="radio-label mal-uso">Mal uso</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="estatus" value="3">
+                                <span class="radio-label extravio">Extravío</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="campo-dias">
+                        <label>ASISTE LOS DÍAS:</label>
+                        <div class="checkbox-dias">
+                            ${['L', 'M', 'I', 'J', 'V', 'S', 'D'].map((dia, pos) => `
+                                <label class="dia-option">
+                                    <input type="checkbox" checked data-dia="${pos}">
+                                    <span>${dia}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="campo">
+                        <label>Fecha Baja</label>
+                        <input type="date" id="inputFechaBaja" value="2050-01-01">
+                    </div>
+                    <div class="campo">
+                        <label>Observaciones</label>
+                        <textarea id="textareaObs" placeholder="Detalles adicionales"></textarea>
+                    </div>
+                </div>
+
+                <!-- 🔥 Sección de Datos Personales -->
+                <div class="campo-extra">
+                    <details open>
+                        <summary>📝 Datos personales</summary>
+                        <div class="subgrid">
+                            <div class="campo">
+                                <label>Calle</label>
+                                <input type="text" id="inputCalle" placeholder="Ej. Av. Principal">
+                            </div>
+                            <div class="campo">
+                                <label>Colonia</label>
+                                <input type="text" id="inputColonia" placeholder="Ej. Centro">
+                            </div>
+                            <div class="campo">
+                                <label>Teléfono</label>
+                                <input type="tel" id="inputTelefono" placeholder="Ej. 5512345678">
+                            </div>
+                            <div class="campo">
+                                <label>C.P.</label>
+                                <input type="text" id="inputCP" placeholder="Ej. 12345">
+                            </div>
+                            <div class="campo">
+                                <label>Encargado</label>
+                                <input type="text" id="inputEncargado" placeholder="Ej. Ing. Pérez">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        width: '800px',
+        showDenyButton: false, // Sin botón de eliminar
+        preConfirm: async () => {
+            // 🔥 Validaciones (igual que en edición)
+            const nombreInput = document.getElementById('inputNombre').value.trim();
+            if (nombreInput.length < 4) {
+                Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+
+            const tagInput = document.getElementById('inputTag').value.trim();
+            const tagNumber = parseInt(tagInput);
+            if (isNaN(tagNumber)) {
+                Swal.showValidationMessage("❌ El TAG debe ser un número válido");
+                return false;
+            }
+            if (tagNumber < 0 || tagNumber > 16777215) {
+                Swal.showValidationMessage("❌ El TAG debe estar entre 0 y 16,777,215");
+                return false;
+            }
+            if(tagNumber> 0)
+            {
+            // 🔥🔥🔥 NUEVA VALIDACIÓN: ¿El TAG ya existe? 🔥🔥🔥
+                const tagDuplicado = await validarTag(tagNumber);
+                if (tagDuplicado) {
+                    Swal.showValidationMessage("❌ Este TAG ya está en uso. ¡Elige otro!");
+                    return false;
+                }
+            }
+
+            // Convertir checkboxes de días a string binario (ej. "1111100")
+            function getDiasSeleccionados() {
+                const dias = Array(7).fill('0');
+                document.querySelectorAll('.checkbox-dias input[type="checkbox"]:checked').forEach(cb => {
+                    dias[parseInt(cb.getAttribute('data-dia'))] = '1';
+                });
+                return dias.join('');
+            }
+
+            return {
+                nombre: nombreInput.toUpperCase(),
+                oficio: parseInt(document.getElementById('selectOficio').value),
+                passw: tagNumber,
+                duerme_domicilio: document.getElementById('checkDuerme').checked,
+                estatus: document.querySelector('input[name="estatus"]:checked').value,
+                f_baja: document.getElementById('inputFechaBaja').value || null,
+                obs: document.getElementById('textareaObs').value.toUpperCase(),
+                calle: document.getElementById('inputCalle').value.toUpperCase(),
+                colonia: document.getElementById('inputColonia').value.toUpperCase(),
+                tel: document.getElementById('inputTelefono').value,
+                cp: document.getElementById('inputCP').value,
+                encargado: document.getElementById('inputEncargado').value.toUpperCase(),
+                h24: 0, // Default: no 24hrs
+                dias: getDiasSeleccionados(),
+                // Campos requeridos por el endpoint:
+                idtrabajador: 0, // 0 = Nuevo registro
+                idcasa: idCasacache, // Ajusta según tu lógica
+                idusuario: 1, // ID del usuario logueado
+                casetalog: idCasetacache, // Ajusta según tu lógica
+                idfoto: 0,
+                idfoto2: 0
+            };
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const datos = result.value;
+            
+            // Mostrar loader
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire('¡Guardado!', 'Trabajador agregado correctamente', 'success');
+                    // Recargar lista si existe la función
+                    
+                        await cargarTrabajadores(idCasacache);
+                    
+                } else {
+                    throw new Error(data.error || 'Error al guardar');
+                }
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
+        }
+    });
+}
+
+
+document.getElementById('add-residente').addEventListener('click', () => {
+    // Obtén el ID de la casa (ajusta según tu lógica)
+    abrirNuevoResidente();
+});
+
+document.getElementById('add-trabajador').addEventListener('click', () => {
+    abrirNuevoTrabajador();
+});
+
+
+
+// 2. Función para obtener los datos actuales del formulario
+function obtenerDatosFormulario() {
+    return {
+        direccion: document.getElementById('direccion').value,
+        tel: document.getElementById('telefono').value,
+        categoria: document.getElementById('categoria').value,
+        lote: document.getElementById('lote').value,
+        caseta: document.getElementById('caseta').value,
+        restriccion: document.getElementById('restriccion').value,
+        contrato: document.getElementById('contrato').value,
+        fcuota: document.getElementById('fecha-cuota').value,
+        picol: document.getElementById('permiso-residentes').checked ? 1 : 0,
+        pitra: document.getElementById('permiso-trabajadores').checked ? 1 : 0
+    };
+}
+
+// 3. Función para verificar cambios
+function verificarCambios() {
+    const datosActuales = obtenerDatosFormulario();
+    haCambiado = !Object.keys(valoresIniciales).every(key => 
+        valoresIniciales[key] === datosActuales[key]
+    );
+    return haCambiado;
+}
+
+// 4. Event listeners para detectar cambios
+document.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('change', verificarCambios);
+});
+
+// 5. Función para guardar los datos
+async function guardarDatos() {
+    if (!verificarCambios()) {
+        
+        await Swal.fire({
+            icon: 'info',
+            title: 'Sin cambios',
+            text: 'No se detectaron modificaciones para guardar',
+            confirmButtonText: 'Entendido'
+        });
+        return false;
+    }
+
+    const datos = obtenerDatosFormulario();
+    
+    datos.direccion = datos.direccion.toUpperCase();
+    datos.lote = datos.lote.toUpperCase();
+    datos.restriccion = datos.restriccion.toUpperCase();
+    
+    // Validaciones manuales (por si el HTML falla o hay lógica compleja)
+    if (datos.direccion.trim().length < 4) {
+        await Swal.fire("Error", "La dirección debe tener al menos 4 caracteres", "error");
+        return false;
+    }
+
+    if (!datos.categoria) {
+        await Swal.fire("Error", "Selecciona una categoría", "error");
+        return false;
+    }
+
+    if (!datos.caseta) {
+        await Swal.fire("Error", "Selecciona una caseta", "error");
+        return false;
+    }
+
+    if (isNaN(datos.contrato)) {
+        await Swal.fire("Error", "El contrato debe ser numérico", "error");
+        return false;
+    }
+
+    // Validar teléfono (ejemplo: 555-1234567)
+    const telefonoValido = /^\d{3}-\d{6,7}$/.test(datos.telefono);
+    if (isNaN(datos.tel)) {
+        await Swal.fire("Error", "Teléfono inválido. Usa el formato: 555-1234567", "error");
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${BACKEND_HOST}/api/casa/guardar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ...datos,
+                idusuario: 1, // Aquí deberías poner el ID real del usuario
+                idcasa: idCasacache, // O el ID si es edición
+                casetalog: datos.caseta, // Ajustar según necesidad
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: '¡Guardado!',
+                text: 'Los datos se guardaron correctamente',
+                confirmButtonText: 'Genial'
+            });
+            // Actualizamos los valores iniciales con los nuevos
+            valoresIniciales = obtenerDatosFormulario();
+            haCambiado = false;
+            return true;
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+    } catch (error) {
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo guardar: ' + error.message,
+            confirmButtonText: 'Entendido'
+        });
+        return false;
+    }
+}
+
+// 6. Asignar al botón "Grabar y Salir"
+document.querySelector('.btn-primary').addEventListener('click', async () => {
+    const guardadoExitoso = await guardarDatos();
+    if (guardadoExitoso || !haCambiado) {
+        // Redirigir o cerrar el modal/módulo
+        window.history.back();
+    }
+});
+
+document.querySelector('.btn-danger').addEventListener('click', async () => {
+        window.history.back();
+});
+
+
+// ========== INICIO ========== //
+document.addEventListener('DOMContentLoaded', cargarDomicilioCompleto);
+
+

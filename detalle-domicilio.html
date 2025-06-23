@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <title>Detalle Domicilio</title>
+    <link rel="stylesheet" href="styles/detalle-domicilio.css">
+</head>
+<body>
+    <div id="loader" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        flex-direction: column;
+    ">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-size: 1.2em;">Cargando datos...</p>
+    </div>
+    
+    <div id="contenido-principal" style="display: none;">
+    <div class="container">
+        <!-- Sidebar izquierda - Info General EDITABLE -->
+        <div class="sidebar">
+            <div class="header">
+                <h1>INFORMACIÓN GENERAL</h1>
+            </div>
+            <div class="card" style="border-radius: 0 0 10px 10px;">
+                <div class="info-item">
+                    <label for="direccion">DIRECCIÓN</label>
+                    <textarea 
+                    id="direccion" 
+                    rows="1" 
+                    style="width: 100%; resize: vertical;"
+                    minlength="4" 
+                    required
+                ></textarea>
+                </div>
+                <div class="info-item">
+                    <label for="telefono">TELÉFONO</label>
+                   <input 
+                    type="tel" 
+                    id="telefono" 
+                    pattern="[0-9]{3}-[0-9]{6,7}" 
+                    placeholder="Ej. 555-1234567"
+                    required
+                >
+                </div>
+                <div class="info-item">
+                    <label for="categoria">CATEGORÍA</label>
+                    <select id="categoria" required>
+                    <option value="">Selecciona una categoría</option>
+                    <!-- Opciones dinámicas -->
+                </select>
+                </div>
+                <div class="info-item">
+                    <label for="lote">LOTE</label>
+                    <input type="text" id="lote" value="123">
+                </div>
+                <div class="info-item">
+                    <label for="caseta">CASETA</label>
+                    <!-- Cambia esto: -->
+                    <!-- <input type="text" id="caseta" value="Caseta Interna 1"> -->
+                    <!-- Por esto: -->
+                    <select id="caseta" required>
+                    <option value="">Selecciona una caseta</option>
+                    <!-- Opciones dinámicas -->
+                </select>
+                </div>
+                <div class="info-item">
+                    <label for="restriccion">RESTRICCIÓN</label>
+                    <textarea 
+                        id="restriccion" 
+                        rows="3" 
+                        style="width: 100%; resize: vertical;"
+                    ></textarea>
+                </div>
+                <div class="info-item">
+                    <label for="contrato">CONTRATO</label>
+                    <input 
+                    type="number" 
+                    id="contrato" 
+                    value="0" 
+                    min="0" 
+                    required
+                >
+                </div>
+                <div class="info-item">
+                    <label for="fecha-cuota">FECHA CUOTA</label>
+                    <input type="date" id="fecha-cuota" value="2050-01-01">
+                </div>
+                <!-- === BOTONES INTEGRADOS === -->
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 20px;
+                    padding-top: 15px;
+                    border-top: 1px solid #eee;
+                ">
+                    <button class="btn btn-danger">CANCELAR Y SALIR</button>
+                    <button class="btn btn-primary">GRABAR Y SALIR</button>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Columna Derecha - Residentes/Trabajadores -->
+        <div class="main-content">
+            <!-- Sección Residentes -->
+    <div class="card">
+        <div class="section-header">
+            <h2>RESIDENTES</h2>
+            <button id="add-residente" class="btn btn-success">+ Agregar</button>
+        </div>
+        <div class="table-container">
+            <table class="scrollable-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Auto</th>
+                        <th>Placa</th>
+                        <th>Tag</th>
+                    </tr>
+                </thead>
+                <tbody id="residentes-list" class="filas-dinamicas">
+                    <!-- Filas dinámicas aquí -->
+                </tbody>
+            </table>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="permiso-residentes" checked>
+            <label for="permiso-residentes">Permitir ingreso</label>
+        </div>
+    </div>
+
+    <!-- Sección Trabajadores (estructura similar) -->
+    <div class="card">
+        <div class="section-header">
+            <h2>TRABAJADORES</h2>
+            <button id="add-trabajador" class="btn btn-success">+ Agregar</button>
+                </div>
+                <div class="table-container">
+                    <table class="scrollable-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Oficio</th>
+                                <th>Fecha baja</th>
+                                <th>Tag</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trabajadores-list" class="filas-dinamicas">
+                            <!-- Filas dinámicas aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="permiso-trabajadores" checked>
+                    <label for="permiso-trabajadores">Permitir ingreso</label>
+                </div>
+            </div>
+                </div>
+                
+        </div>
+    </div>
+    </div>
+    <script src="scripts/detalle-domicilio.js"></script>
+</body>
+
+    
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Domicilios | BrodyStyle</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+    <div class="page-title">
+        <h1>CONDOMINIO PROBANDO</h1>
+        <p class="expiry-date">Vigencia hasta: 00/00/0000</p>
+    </div>
+
+    <div class="container">
+        <!-- Sección de búsqueda (izquierda) -->
+        <div class="search-section">
+            <h2>ADMINISTRA DOMICILIOS</h2>
+             <button id="agregarCasaBtn" class="btn btn-primary" style="margin-top: 10px;">
+                <i class="fas fa-plus"></i> AGREGAR CASA
+            </button>
+            <div class="search-group">
+                <label for="search">Buscar:</label>
+            </div>
+            <div class="search-group">
+                <label for="direccion">DIRECCIÓN</label>
+                <input type="text" id="direccion" placeholder="Ej: Calle 123">
+            </div>
+            <div class="search-group">
+                <label for="residente">RESIDENTE</label>
+                <input type="text" id="residente" placeholder="Nombre del residente">
+            </div>
+            <div class="search-group">
+                <label for="trabajador">TRABAJADOR</label>
+                <input type="text" id="trabajador" placeholder="Nombre del trabajador">
+            </div>
+            <div class="search-group">
+                <label for="placa">PLACA</label>
+                <input type="text" id="placa" placeholder="Ej: ABC-123">
+            </div>
+            <div class="search-group">
+                <label for="tag">TAG o TARJETA</label>
+                <input type="text" id="tag" placeholder="Número de tag">
+            </div>
+                        <button class="btn-exit">SALIR</button>
+
+        </div>
+
+        <!-- Sección de resultados (derecha) -->
+        <div class="results-section">
+            <h1>Resultados de Búsqueda</h1>
+            <div class="results-container"> <!-- Nuevo contenedor scrollable -->
+                <!-- Las cards se generarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+    <script src="scripts/app.js"></script>
+
+</html>
