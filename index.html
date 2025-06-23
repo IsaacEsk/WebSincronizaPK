@@ -31,7 +31,22 @@
         </form>
         
         <div class="login-footer">
-            <p>¿Problemas? <a href="#">Contacta al soporte</a></p>
+         <p>¿Problemas? <a href="#" id="forgot-password-link">Olvidaste tu contraseña</a></p>
+        </div>
+
+        <!-- Modal (oculto por defecto) -->
+        <!-- Modal -->
+        <div id="forgot-password-modal" class="modal">
+        <div class="modal-content">
+            <h2>Recuperar contraseña</h2>
+            <form id="forgot-password-form">
+            <input type="email" id="recovery-email" placeholder="Tu correo" required>
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Enviar enlace</button>
+                <button type="button" id="cancel-btn" class="btn-secondary">Cancelar</button>
+            </div>
+            </form>
+        </div>
         </div>
     </div>
     

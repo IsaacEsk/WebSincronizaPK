@@ -224,3 +224,51 @@ document.body.addEventListener('click', (e) => {
         }
     });
 }});
+
+// Mostrar modal al hacer clic en el enlace
+document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('forgot-password-modal').style.display = 'block';
+});
+
+
+// Mostrar modal
+document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('forgot-password-modal').style.display = 'flex'; // Cambiado a flex
+});
+
+// Cerrar modal al hacer clic en Cancelar
+document.getElementById('cancel-btn').addEventListener('click', () => {
+  document.getElementById('forgot-password-modal').style.display = 'none';
+});
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('forgot-password-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('forgot-password-modal')) {
+    document.getElementById('forgot-password-modal').style.display = 'none';
+  }
+});
+
+// Enviar email al backend
+document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('recovery-email').value;
+
+  try {
+    const response = await fetch(`${BACKEND_HOST}/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    if (response.ok) {
+      alert('¡Revisa tu correo para restablecer la contraseña!');
+    } else {
+      alert('Error: Correo no registrado.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Algo salió mal. Intenta de nuevo.');
+  }
+});
