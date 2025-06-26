@@ -26,17 +26,50 @@ const getMqttTopic = () => {
     }
 };
 
+// const originalFetch = window.fetch;
+// window.fetch = async (url, options = {}) => {
+//   const newOptions = {
+//     ...options,
+//     headers: {
+//       ...options.headers,
+//       'x-mqtt-topic': getMqttTopic()
+//     }
+//   };
+//   return originalFetch(url, newOptions);
+// };
+
 const originalFetch = window.fetch;
+
 window.fetch = async (url, options = {}) => {
+  // 1. Timeout configurable (default: 8 segundos)
+  const timeout = options.timeout || 60000; 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // 2. Headers personalizados (incluyendo el tuyo)
   const newOptions = {
     ...options,
     headers: {
       ...options.headers,
-      'x-mqtt-topic': getMqttTopic()
-    }
+      'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+    },
+    signal: controller.signal // <- Signal para el timeout
   };
-  return originalFetch(url, newOptions);
+
+  try {
+    const response = await originalFetch(url, newOptions);
+    clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+      throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+    }
+    throw error; // Otros errores (CORS, red, etc.)
+  }
 };
+
 
 
 async function cargarCategorias() {
@@ -49,7 +82,13 @@ async function cargarCategorias() {
 
         llenarComboCategorias(data); // Directo al combo, sin cache
     } catch (error) {
-        console.error('Error cargando categorías:', error);
+        console.error('🔥 ERROR EN cargarCategorias:', {
+            error: error.message,
+            url: `${BACKEND_HOST}/api/search/categorias`,
+            status: response?.status,
+            backendData: await safeParseError(response), // Parsea el error sin crashear
+        });
+
         document.getElementById('categoria').innerHTML = `
             <option value="">Error al cargar categorías</option>
         `;
@@ -87,7 +126,13 @@ async function cargarCasetas() {
 
         llenarComboCasetas(data); // Sin cache, pura data fresca
     } catch (error) {
-        console.error('Error cargando casetas:', error);
+        console.error('🔥 ERROR EN cargarCasetas:', {
+            error: error.message,
+            url: `${BACKEND_HOST}/api/search/casetas`,
+            status: response?.status,
+            stack: error.stack, // 👀 Pila de llamadas (útil para bugs raros)
+        });
+
         document.getElementById('caseta').innerHTML = `
             <option value="">Error al cargar casetas</option>
         `;
@@ -138,7 +183,14 @@ async function cargarResidentes(idCasa) {
         `).join('');
 
     } catch (error) {
-        console.error('Error cargando residentes:', error);
+        console.error('🔥 ERROR EN cargarResidentes:', {
+            error: error.message,
+            url: `${BACKEND_HOST}/api/search/residentescasa?query=${idCasa}`,
+            status: response?.status,  // Status HTTP (si hay response)
+            statusText: response?.statusText,
+            backendError: await getErrorBody(response), // 👀 Ver cuerpo del error
+        });
+
         document.getElementById('residentes-list').innerHTML = `
             <tr><td colspan="4" class="error">⚠️ Error al cargar residentes</td></tr>
         `;
@@ -169,6 +221,22 @@ async function cargarTrabajadores(idCasa) {
         `).join('');
 
     } catch (error) {
+        console.error('🔥 ERROR EN cargarTrabajadores:', {
+        error: error.message, // Mensaje de error
+        response: error.response, // Si usa Axios (si no, ignora)
+        url: `${BACKEND_HOST}/api/search/trabajadorescasa?query=${idCasa}`,
+        status: response?.status, // Agrega esto ANTES del json()
+        statusText: response?.statusText,
+        });
+
+        // Si quieres ver el cuerpo del error (aunque sea un 500)
+        try {
+            const errorBody = await response.clone().json(); // Clonar para no consumir el stream
+            console.log('📌 Cuerpo del error:', errorBody);
+        } catch (e) {
+            console.log('📌 El servidor no devolvió JSON válido en el error');
+        }
+    
         console.error('Error cargando trabajadores:', error);
         document.getElementById('trabajadores-list').innerHTML = `
             <tr><td colspan="3" class="error">⚠️ Error al cargar trabajadores</td></tr>
@@ -208,7 +276,7 @@ async function cargarDomicilioCompleto() {
         if (!idCasa) throw new Error('ID de casa no proporcionado');
 
         // Cargar datos en paralelo
-        await Promise.all([
+        await Promise.allSettled([
            await cargarCategorias(),
            await cargarCasetas(),
            await cargarOficios()
@@ -248,7 +316,7 @@ async function cargarDomicilioCompleto() {
         document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
 
         // Cargar residentes y trabajadores
-        await Promise.all([
+        await Promise.allSettled([
             await cargarResidentes(idCasa),
             await cargarTrabajadores(idCasa)
         ]);
@@ -1262,10 +1330,14 @@ async function guardarDatos() {
 
     // Validar teléfono (ejemplo: 555-1234567)
     const telefonoValido = /^\d{3}-\d{6,7}$/.test(datos.telefono);
-    if (isNaN(datos.tel)) {
-        await Swal.fire("Error", "Teléfono inválido. Usa el formato: 555-1234567", "error");
-        return false;
+    if((datos.tel).length>20)
+    {
+        await Swal.fire("Error", "Teléfono mayor a 20 caracteres", "error");
     }
+    // if (isNaN(datos.tel)) {
+    //     await Swal.fire("Error", "Teléfono inválido. Usa el formato numerico", "error");
+    //     return false;
+    // }
 
     try {
         const response = await fetch(`${BACKEND_HOST}/api/casa/guardar`, {

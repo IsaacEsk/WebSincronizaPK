@@ -32,17 +32,50 @@ const getMqttTopic = () => {
 };
 
 // Interceptamos fetch para añadir headers
+// const originalFetch = window.fetch;
+// window.fetch = async (url, options = {}) => {
+//   const newOptions = {
+//     ...options,
+//     headers: {
+//       ...options.headers,
+//       'x-mqtt-topic': getMqttTopic()
+//     }
+//   };
+//   return originalFetch(url, newOptions);
+// };
+
 const originalFetch = window.fetch;
+
 window.fetch = async (url, options = {}) => {
+  // 1. Timeout configurable (default: 8 segundos)
+  const timeout = options.timeout || 60000; 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // 2. Headers personalizados (incluyendo el tuyo)
   const newOptions = {
     ...options,
     headers: {
       ...options.headers,
-      'x-mqtt-topic': getMqttTopic()
-    }
+      'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+    },
+    signal: controller.signal // <- Signal para el timeout
   };
-  return originalFetch(url, newOptions);
+
+  try {
+    const response = await originalFetch(url, newOptions);
+    clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+      throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+    }
+    throw error; // Otros errores (CORS, red, etc.)
+  }
 };
+
 
 // ========== FUNCIONES AUXILIARES ========== //
 async function fetchWithErrorHandling(url, options = {}) {
@@ -320,11 +353,15 @@ function abrirNuevaCasa() {
             }
 
             // Validación de teléfono (solo números si existe)
-            const telefonoInput = document.getElementById('inputTelefono').value.trim();
-            if (telefonoInput && !/^\d+$/.test(telefonoInput)) {
-                Swal.showValidationMessage("❌ El teléfono debe contener solo números");
-                return false;
-            }
+             const telefonoInput = document.getElementById('inputTelefono').value.trim();
+             if (telefonoInput.length > 20)
+             {
+              Swal.showValidationMessage("❌ El teléfono debe contener menos de 20 caracteres");
+             }
+            // if (telefonoInput && !/^\d+$/.test(telefonoInput)) {
+            //     Swal.showValidationMessage("❌ El teléfono debe contener solo números");
+            //     return false;
+            // }
 
             // Validación de contrato (debe ser numérico)
             const contratoInput = document.getElementById('inputContrato').value.trim();
