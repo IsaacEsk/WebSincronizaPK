@@ -97,6 +97,8 @@ async function fetchWithErrorHandling(url, options = {}) {
 
 
 
+
+
 // ========== FUNCIONES AUXILIARES ========== //
 function llenarComboCategorias(data) {
     const select = document.getElementById('selectCategoria');

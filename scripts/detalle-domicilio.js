@@ -70,7 +70,118 @@ window.fetch = async (url, options = {}) => {
   }
 };
 
+async function cargarTodoEnUnSoloFetch(idCasa) {
+    mostrarLoader(true);
 
+    try {
+        // 1️⃣ Definir TODOS los queries (incluyendo el de la casa)
+        const queries = [
+            { 
+                key: 'domicilio', 
+                sql: `
+                    SELECT 
+                        c.*,
+                        con.concepto AS nombre_categoria,
+                        d.nombre AS nombre_caseta
+                    FROM 
+                        casas c
+                    LEFT JOIN 
+                        conceptos con ON c.categoria = con.idconcepto
+                    LEFT JOIN 
+                        dispositivo d ON c.caseta = d.iddispositivo
+                    WHERE 
+                        c.idcasa = '${idCasa}' AND c.activo = 1;
+                `
+            },
+            { key: 'categorias', sql: `SELECT * FROM conceptos WHERE activo = 1 AND tipo = 2 ORDER BY concepto` },
+            { key: 'caseta', sql: `SELECT * FROM dispositivo WHERE tipo = 2 ORDER BY nombre` },
+            { key: 'residentes', sql: `SELECT * FROM residentes WHERE activo = 1 AND idcasa = '${idCasa}' ORDER BY nombre` },
+            { key: 'trabajadores', sql: `SELECT * FROM trabajadores WHERE activo = 1 AND idcasa = '${idCasa}' ORDER BY nombre` },
+            { key: 'oficios', sql: `SELECT * FROM conceptos WHERE tipo = 1 AND activo = 1 ORDER BY concepto` }
+        ];
+
+        // 2️⃣ Hacer el batch fetch
+        const response = await fetch(`${BACKEND_HOST}/api/search/batch?queries=${encodeURIComponent(JSON.stringify(queries))}`);
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        
+        const result = await response.json();
+        //console.log("🔥 Respuesta batch completa:", result);
+
+        if (!result.success) throw new Error('Error general en el batch');
+
+        // 3️⃣ Procesar datos de la casa PRIMERO (si existe)
+        if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
+            const casa = result.data.domicilio.data[0];
+            
+            // Llenar campos principales
+            document.getElementById('direccion').value = casa.direccion || '  ';
+            document.getElementById('lote').value = casa.lote || '  ';
+            document.getElementById('restriccion').value = casa.restriccion || '  ';
+            document.getElementById('contrato').value = casa.contrato || '0';
+            document.getElementById('telefono').value = casa.tel || '';
+            
+            idCasetacache = casa.caseta;
+            document.getElementById('fecha-cuota').value = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
+            
+            // Seleccionar categoría y caseta (usando los nombres si existen)
+            document.getElementById('categoria').value = casa.categoria || '';
+            document.getElementById('caseta').value = casa.caseta || '';
+            
+            // Checkboxes
+            document.getElementById('permiso-residentes').checked = casa.picol === 1;
+            document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+        } else {
+            throw new Error('Domicilio no encontrado');
+        }
+
+        // 4️⃣ Procesar el resto de los datos (categorías, residentes, etc.)
+        Object.entries(result.data).forEach(([key, subResponse]) => {
+            if (key === 'domicilio') return; // Ya lo procesamos
+            
+            if (!subResponse.success) {
+                console.warn(`❌ ${key} falló:`, subResponse);
+                return;
+            }
+
+            switch (key) {
+                case 'categorias':
+                    llenarComboCategorias(subResponse.data);
+                    break;
+                case 'caseta':
+                    llenarComboCasetas(subResponse.data);
+                    break;
+                case 'residentes':
+                    llenarTablaResidentes(subResponse.data);
+                    // 🔥 Guardamos en cache!
+                    cacheResidentes={};
+                    cacheResidentes = subResponse.data;
+                    break;
+                case 'trabajadores':
+                    llenarTablaTrabajadores(subResponse.data);
+                    cacheTrabajadores={};
+                    cacheTrabajadores=subResponse.data;
+                    break;
+                case 'oficios':
+                    cacheOficios={};
+                    cacheOficios=subResponse.data;
+                    //llenarComboOficios(subResponse.data);
+                    break;
+            }
+        });
+
+        // 5️⃣ Guardar valores iniciales
+        valoresIniciales = obtenerDatosFormulario();
+
+    } catch (error) {
+        console.error("🔥 ERROR crítico:", error);
+        alert(error.message.includes('Domicilio') 
+            ? '❌ Domicilio no existe. Regresa a la búsqueda.' 
+            : '⚠️ Error al cargar datos. Recarga la página.');
+        if (error.message.includes('Domicilio')) window.location.href = "/buscar.html";
+    } finally {
+        mostrarLoader(false);
+    }
+}
 
 async function cargarCategorias() {
     try {  
@@ -154,6 +265,30 @@ function llenarComboCasetas(data) {
     ).join('');
 }
 
+function llenarTablaResidentes(data) {
+    const tbody = document.getElementById('residentes-list');
+    tbody.innerHTML = data.map(residente => `
+        <tr data-id="${residente.idresidente}" data-tipo="residente">
+            <td>${residente.nombre?.trim() || '  '}</td>
+            <td>${residente.auto?.trim() || '  '}</td>
+            <td>${residente.placa?.trim() || '  '}</td>
+            <td>${residente.passw || '0'}</td>
+        </tr>
+    `).join('');
+}
+
+function llenarTablaTrabajadores(data) {
+    const tbody = document.getElementById('trabajadores-list');
+    tbody.innerHTML = data.map(trabajador => `
+        <tr data-id="${trabajador.idtrabajador}" data-tipo="trabajador">
+            <td>${trabajador.nombre?.trim() || '  '}</td>
+            <td>${trabajador.nombre_oficio?.trim() || '  '}</td>
+            <td>${trabajador.f_baja ? new Date(trabajador.f_baja).toLocaleDateString('es-MX') : '  '}</td>
+            <td>${trabajador.passw || '0'}</td>
+        </tr>
+    `).join('');
+}
+
 // === CACHE DE DATOS ===
 let cacheResidentes = {}; // Objeto para guardar residentes por IDcasa
 let cacheTrabajadores = {}; // Objeto para guardar residentes por IDcasa
@@ -172,6 +307,7 @@ async function cargarResidentes(idCasa) {
         cacheResidentes={};
         cacheResidentes = result.data;
         //console.log(cacheResidentes);
+
         const tbody = document.getElementById('residentes-list');
         tbody.innerHTML = result.data.map(residente => `
             <tr data-id="${residente.idresidente}" data-tipo="residente">
@@ -277,50 +413,43 @@ async function cargarDomicilioCompleto() {
 
         // Cargar datos en paralelo
         await Promise.allSettled([
-           await cargarCategorias(),
-           await cargarCasetas(),
-           await cargarOficios()
+            await cargarTodoEnUnSoloFetch(idCasacache)
         ]);
 
-        // Cargar datos de la casa
-        const response = await fetch(`${BACKEND_HOST}/api/search/idcasa?query=${idCasa}`);
-        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        // // Cargar datos de la casa
+        // const response = await fetch(`${BACKEND_HOST}/api/search/idcasa?query=${idCasa}`);
+        // if (!response.ok) throw new Error('Error en la respuesta del servidor');
         
-        const { success, data } = await response.json();
-        if (!success || !data.length) throw new Error('Domicilio no encontrado');
+        // const { success, data } = await response.json();
+        // if (!success || !data.length) throw new Error('Domicilio no encontrado');
 
-        const casa = data[0];
+        // const casa = data[0];
         
 
-        // Llenar campos
-        document.getElementById('direccion').value = casa.direccion || '  ';
-        document.getElementById('lote').value = casa.lote || '  ';
-        document.getElementById('restriccion').value = casa.restriccion || '  ';
-        document.getElementById('contrato').value = casa.contrato || '0';
-        document.getElementById('telefono').value = casa.tel || '';
+        // // Llenar campos
+        // document.getElementById('direccion').value = casa.direccion || '  ';
+        // document.getElementById('lote').value = casa.lote || '  ';
+        // document.getElementById('restriccion').value = casa.restriccion || '  ';
+        // document.getElementById('contrato').value = casa.contrato || '0';
+        // document.getElementById('telefono').value = casa.tel || '';
         
-        idCasetacache = casa.caseta;
+        // idCasetacache = casa.caseta;
         
-        const fechaCuota = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
-        document.getElementById('fecha-cuota').value = fechaCuota;
+        // const fechaCuota = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
+        // document.getElementById('fecha-cuota').value = fechaCuota;
 
-        // Seleccionar categoría y caseta
-        const selectCategoria = document.getElementById('categoria');
-        const selectCaseta = document.getElementById('caseta');
+        // // Seleccionar categoría y caseta
+        // const selectCategoria = document.getElementById('categoria');
+        // const selectCaseta = document.getElementById('caseta');
         
-        selectCategoria.value = casa.categoria || '';
-        selectCaseta.value = casa.caseta || '';
+        // selectCategoria.value = casa.categoria || '';
+        // selectCaseta.value = casa.caseta || '';
 
-        // Checkboxes
-        document.getElementById('permiso-residentes').checked = casa.picol === 1;
-        document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+        // // Checkboxes
+        // document.getElementById('permiso-residentes').checked = casa.picol === 1;
+        // document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
 
-        // Cargar residentes y trabajadores
-        await Promise.allSettled([
-            await cargarResidentes(idCasa),
-            await cargarTrabajadores(idCasa)
-        ]);
-        valoresIniciales = obtenerDatosFormulario();
+        // valoresIniciales = obtenerDatosFormulario();
 
     } catch (error) {
         console.error('Error crítico:', error);
