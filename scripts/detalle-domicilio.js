@@ -677,7 +677,8 @@ function abrirDetalleTrabajador(idTrabajador) {
                 calle: document.getElementById('inputCalle').value.trim().toUpperCase(),
                 colonia: document.getElementById('inputColonia').value.trim().toUpperCase(),
                 telefono: document.getElementById('inputTelefono').value.trim().toUpperCase(),
-                cp: document.getElementById('inputCP').value.trim().toUpperCase()
+                cp: document.getElementById('inputCP').value.trim().toUpperCase(),
+                encargado: document.getElementById('inputEncargado').value.trim().toUpperCase()
             };
         },
         customClass: {
