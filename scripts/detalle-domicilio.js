@@ -109,30 +109,7 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
 
         if (!result.success) throw new Error('Error general en el batch');
 
-        // 3️⃣ Procesar datos de la casa PRIMERO (si existe)
-        if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
-            const casa = result.data.domicilio.data[0];
-            
-            // Llenar campos principales
-            document.getElementById('direccion').value = casa.direccion || '  ';
-            document.getElementById('lote').value = casa.lote || '  ';
-            document.getElementById('restriccion').value = casa.restriccion || '  ';
-            document.getElementById('contrato').value = casa.contrato || '0';
-            document.getElementById('telefono').value = casa.tel || '';
-            
-            idCasetacache = casa.caseta;
-            document.getElementById('fecha-cuota').value = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
-            
-            // Seleccionar categoría y caseta (usando los nombres si existen)
-            document.getElementById('categoria').value = casa.categoria || '';
-            document.getElementById('caseta').value = casa.caseta || '';
-            
-            // Checkboxes
-            document.getElementById('permiso-residentes').checked = casa.picol === 1;
-            document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
-        } else {
-            throw new Error('Domicilio no encontrado');
-        }
+        
 
         // 4️⃣ Procesar el resto de los datos (categorías, residentes, etc.)
         Object.entries(result.data).forEach(([key, subResponse]) => {
@@ -168,6 +145,31 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
                     break;
             }
         });
+
+        // 3️⃣ Procesar datos de la casa PRIMERO (si existe)
+        if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
+            const casa = result.data.domicilio.data[0];
+            
+            // Llenar campos principales
+            document.getElementById('direccion').value = casa.direccion || '  ';
+            document.getElementById('lote').value = casa.lote || '  ';
+            document.getElementById('restriccion').value = casa.restriccion || '  ';
+            document.getElementById('contrato').value = casa.contrato || '0';
+            document.getElementById('telefono').value = casa.tel || '';
+            
+            idCasetacache = casa.caseta;
+            document.getElementById('fecha-cuota').value = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
+            
+            // Seleccionar categoría y caseta (usando los nombres si existen)
+            document.getElementById('categoria').value = casa.categoria || '';
+            document.getElementById('caseta').value = casa.caseta || '';
+            
+            // Checkboxes
+            document.getElementById('permiso-residentes').checked = casa.picol === 1;
+            document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+        } else {
+            throw new Error('Domicilio no encontrado');
+        }
 
         // 5️⃣ Guardar valores iniciales
         valoresIniciales = obtenerDatosFormulario();
