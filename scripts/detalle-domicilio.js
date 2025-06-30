@@ -7,9 +7,9 @@ const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 // ========== CONFIGURACIÓN MQTT ========== //
 const getMqttTopic = () => {
     try {
-        const condoString = localStorage.getItem('condominioSeleccionado');
+        const condoString = sessionStorage.getItem('condominioSeleccionado');
         if (!condoString) {
-            console.error('No se encontró condominio seleccionado en localStorage');
+            console.error('No se encontró condominio seleccionado en sessionStorage');
             return 'query/default';
         }
         
