@@ -6,13 +6,38 @@ const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 // Verificamos si hay condominios en sessionStorage para mostrar la pre-sala directamente
 const condominiosGuardados = JSON.parse(sessionStorage.getItem('condominiosUsuario'));
 const usuarioGuardado = JSON.parse(sessionStorage.getItem('userData'));
+const condominioSeleccionado = JSON.parse(sessionStorage.getItem('condominioSeleccionado'));
 
-if (condominiosGuardados && condominiosGuardados.length > 0 && !localStorage.getItem('condominioSeleccionado')) {
-    // Ocultamos el formulario de login
-    document.querySelector('.login-container').style.display = 'none';
-    // Mostramos la pre-sala con los condominios guardados
-     mostrarPresalaCondominios(condominiosGuardados, usuarioGuardado || { name: 'Usuario' }); // Puedes guardar el nombre del usuario también en sessionStorage si lo necesitas
-}
+const condoString = sessionStorage.getItem('condominioSeleccionado');
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Sie entre a ver si muestro la presala ");
+    console.log(condominiosGuardados);
+    console.log(usuarioGuardado);
+    console.log(condominioSeleccionado);
+
+
+    if(usuarioGuardado)
+    {
+        if(condominiosGuardados.length > 0 && !condominioSeleccionado)
+        {
+            mostrarPresalaCondominios(condominiosGuardados, usuarioGuardado || { name: 'Usuario' });
+        }
+        else if(condominioSeleccionado)
+        {
+            swindow.location.href = `main.html`;
+        }
+    }
+    else
+    {
+
+    }
+
+});
+
+
+
 
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -131,7 +156,7 @@ function seleccionarCondominio(condoId) {
     const condoSeleccionado = condominios.find(c => c.id === condoId);
     
     console.log("Condominio seleccionado:", condoSeleccionado);
-    localStorage.setItem('condominioSeleccionado', JSON.stringify(condoSeleccionado));
+    sessionStorage.setItem('condominioSeleccionado', JSON.stringify(condoSeleccionado));
     
     window.location.href = `main.html`;
 }
@@ -146,7 +171,7 @@ document.body.addEventListener('click', (e) => {
 // Función mejorada de logout
 function logoutCompleto() {
     // Limpiamos todos los datos
-    localStorage.removeItem('condominioSeleccionado');
+    sessionStorage.removeItem('condominioSeleccionado');
     sessionStorage.removeItem('condominiosUsuario');
     sessionStorage.removeItem('userData');
     

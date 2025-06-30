@@ -12,9 +12,9 @@ const DEFAULT_VALUES = {
 // ========== CONFIGURACIÓN MQTT ========== //
 const getMqttTopic = () => {
     try {
-        const condoString = localStorage.getItem('condominioSeleccionado');
+        const condoString = sessionStorage.getItem('condominioSeleccionado');
         if (!condoString) {
-            console.error('No se encontró condominio seleccionado en localStorage');
+            console.error('No se encontró condominio seleccionado en sessionStorage');
             return 'query/default';
         }
         
@@ -267,6 +267,12 @@ function abrirNuevaCasa() {
         title: `<small>NUEVA CASA</small>`,
         html: `
             <div class="casa-grid">
+            <!-- Contenedor del loading (oculto inicialmente) -->
+                <div id="cargaCombos" class="loading-combos">
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                </div>
+
                 <!-- Campo de DIRECCIÓN EDITABLE -->
                 <div class="campo-direccion">
                     <input type="text" placeholder="Ej. Calle Principal #123" id="inputDireccion" class="direccion-editable">
@@ -317,11 +323,23 @@ function abrirNuevaCasa() {
         focusConfirm: false,
         width: '750px',
         didOpen: async () => {
+          const cargaCombos = document.getElementById('cargaCombos');
+            if (cargaCombos) cargaCombos.style.display = 'block';
+
             // Aquí puedes cargar dinámicamente las opciones de categoría y caseta si es necesario
             // Ejemplo: cargarOpcionesCategoria();
             // Ejemplo: cargarOpcionesCaseta();
-            await cargarCasetas();
-            await cargarCategorias();
+            try {
+                await Promise.all([
+                    await cargarCategorias(),
+                    await cargarCasetas()
+                ]);
+            } catch (error) {
+                console.error("Error cargando combos:", error);
+            } finally {
+                // Ocultar el loading después de cargar (éxito o error)
+                if (cargaCombos) cargaCombos.style.display = 'none';
+            }
         },
         preConfirm: () => {
             // Validación de dirección
@@ -441,7 +459,7 @@ function abrirNuevaCasa() {
 
 // Función para logout completo (por si acaso)
 function logoutCompleto() {
-    localStorage.removeItem('condominioSeleccionado');
+    sessionStorage.removeItem('condominioSeleccionado');
     sessionStorage.removeItem('condominiosUsuario');
     window.location.href = 'index.html';
 }
@@ -450,12 +468,13 @@ function logoutCompleto() {
 document.addEventListener('DOMContentLoaded', () => {
 
    // 🔒 Validación de seguridad (PRIMERO QUE NADA)
-    if (!localStorage.getItem('condominioSeleccionado')) {
+    if (!sessionStorage.getItem('condominioSeleccionado')) {
         window.location.href = 'index.html'; // Redirige al login si no hay datos
+        console.log("No obtuve el condomino seccion");
         return; // Detiene la ejecución del resto del código
     }
 
-    const condo = JSON.parse(localStorage.getItem('condominioSeleccionado'));
+    const condo = JSON.parse(sessionStorage.getItem('condominioSeleccionado'));
     console.log("Datos del condominio:", condo);
 
     // Formatear la fecha de expiración (de '2025-12-06T06:00:00.000Z' a '06/12/2025')
@@ -489,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
 
-        const condo = JSON.parse(localStorage.getItem('condominioSeleccionado'));
+        const condo = JSON.parse(sessionStorage.getItem('condominioSeleccionado'));
         console.log("Datos del condominio:", condo);
 
         buscarDatos(input.id, e.target.value.trim());
@@ -507,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (condominiosGuardados && condominiosGuardados.length > 0) {
           // Si hay condominios guardados, redirigimos a index.html donde se mostrará la pre-sala
-          localStorage.removeItem('condominioSeleccionado');
+          sessionStorage.removeItem('condominioSeleccionado');
           window.location.href = 'index.html';
       } else {
           // Si no hay condominios, hacemos logout completo
