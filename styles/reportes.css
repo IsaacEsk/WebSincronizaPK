@@ -1,0 +1,364 @@
+/* Reset y Fuentes */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f6fa;
+    padding: 20px;
+}
+
+.reportes-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+}
+
+/* Encabezado */
+.reportes-header h1 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+}
+
+/* Controles */
+.controles-reporte {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: flex-end;
+}
+
+.fecha-group {
+    flex: 1;
+    max-width: 200px;
+}
+
+.fecha-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #7f8c8d;
+    font-weight: bold;
+}
+
+.fecha-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn-accion {
+    padding: 10px 15px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.btn-accion:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-accion.exportar {
+    background: #27ae60;
+}
+
+.btn-accion.exportar:hover {
+    background: #219653;
+}
+
+/* Tabla */
+.tabla-container {
+    overflow-x: auto;
+}
+
+#tabla-reportes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tabla-reportes th {
+    background: #2c3e50;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+#tabla-reportes td {
+    padding: 10px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+#tabla-reportes tr:hover {
+    background: #f8f9fa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .controles-reporte {
+        flex-direction: column;
+    }
+    
+    .fecha-group {
+        max-width: 100%;
+    }
+}
+
+/* ---- ESTILOS PARA LA TABLA ---- */
+#tabla-reportes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+#tabla-reportes th {
+    background: #2c3e50;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+#tabla-reportes td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+#tabla-reportes tr:hover {
+    background-color: #f5f9ff;
+}
+
+/* Estilos para los iconos de acción */
+.text-success { color: #28a745; }
+.text-danger { color: #dc3545; }
+
+/* Badge para gafetes */
+.badge {
+    display: inline-block;
+    background: #6c757d;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    margin-left: 5px;
+}
+
+/* Botón de detalle */
+.btn-detalle {
+    background: transparent;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+.btn-detalle:hover {
+    transform: scale(1.2);
+    color: #1d6fa5;
+}
+
+/* Mensaje cuando no hay datos */
+.no-data td {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Scroll para tabla muy larga */
+.tabla-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+/* En tu archivo CSS */
+#tabla-reportes tbody tr:hover {
+    background-color: #f5f5f5;
+    transition: background-color 0.2s;
+}
+
+#tabla-reportes tbody tr:active {
+    transform: scale(0.99);
+}
+
+
+/* Agrega esto en tu CSS */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+.skeleton-row {
+    height: 50px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin: 5px 0;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.mensaje-inicial {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+}
+
+/* Badges de estado */
+.badge {
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.bg-success { background-color: #28a745; }
+.bg-secondary { background-color: #6c757d; }
+
+/* Texto gris para oficio */
+.text-muted {
+    color: #6c757d !important;
+    font-size: 0.85em;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+/* Estilo para el botón regresar (Opción 1) */
+.btn-accion.regresar {
+    background-color: #6c757d;
+    margin-left: 10px;
+}
+
+.btn-accion.regresar:hover {
+    background-color: #5a6268;
+}
+
+/* Estilos para el buscador de reportes */
+.search-reportes {
+    margin: 15px 0;
+    padding: 0 10px;
+}
+
+.search-box {
+    position: relative;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 35px 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.search-box .fa-search {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+/* Contenedor principal */
+.controles-reporte {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Para móviles */
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* Grupo de fecha */
+.fecha-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Contenedor de botones (centro) */
+.botones-accion {
+    display: flex;
+    gap: 10px;
+    flex: 1; /* Ocupa espacio disponible */
+    justify-content: center;
+}
+
+/* Buscador (derecha) */
+.search-box-reportes {
+    position: relative;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.search-box-reportes input {
+    width: 100%;
+    padding: 8px 30px 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: #f5f5f5;
+}
+
+.search-box-reportes .fa-search {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+    pointer-events: none;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .controles-reporte {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-box-reportes {
+        max-width: 100%;
+    }
+}

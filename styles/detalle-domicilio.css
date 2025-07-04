@@ -385,8 +385,44 @@
     border: 2px solid #d33 !important;
 }
 
+/* Agrega esto a tu detalle-domicilio.css */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Para responsive */
+}
 
+.search-box {
+    position: relative;
+    flex-grow: 1; /* Ocupa espacio disponible */
+    max-width: 300px;
+}
 
+.search-input {
+    width: 100%;
+    padding: 8px 30px 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.search-box .fa-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+.section-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* Título | Buscador | Botón */
+    align-items: center;
+}
+.search-box {
+    margin: 0 10px; /* Espacio entre elementos */
+}
 /* .radio-label.activo { background: #e6f7ee; color: #0a5c36; }
 .radio-label.mal-uso { background: #feeaea; color: #9b1c1c; }
 .radio-label.extravio { background: #fff8e6; color: #8e6a00; }

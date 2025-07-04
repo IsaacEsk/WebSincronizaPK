@@ -49,14 +49,45 @@
                         <button class="btn-exit">SALIR</button>
 
         </div>
-
-        <!-- Sección de resultados (derecha) -->
-        <div class="results-section">
+        
+       <div class="results-section">
             <h1>Resultados de Búsqueda</h1>
-            <div class="results-container"> <!-- Nuevo contenedor scrollable -->
-                <!-- Las cards se generarán aquí dinámicamente -->
+            <div class="results-container">
+            <!-- Card de instrucciones (solo visible sin resultados) -->
+            <div class="instruction-card">
+                <h3>🔍 ¿Cómo buscar?</h3>
+                <ul>
+                    <li>Escribe <strong>una palabra clave</strong> (nombre, domicilio, etc.) en los cuadros de busqueda.</li>
+                    <li>¿Quieres ver <strong>TODOS</strong> los registros? ¡Solo presiona <kbd>Enter</kbd> con el cuadro vacío!</li>
+                    <li>Los resultados aparecerán aquí automáticamente.</li>
+                </ul>
+                <div class="tip">
+                    <span>💡 <em>Tip:</em> Usa filtros específicos para resultados más rápidos.</span>
+                </div>
             </div>
         </div>
+        </div>
+       
+
+
+        <!-- Agregar esta sección de botones de reportes -->
+        <div class="reportes-section">
+        <h2>REPORTES</h2>
+        <div class="reportes-botones">
+            <a href="reportes.html?tipo=vehicular" class="btn-reporte">
+                <i class="fas fa-car"></i> Visitante vehicular
+            </a>
+            <a href="reportes.html?tipo=peatonal" class="btn-reporte">
+                <i class="fas fa-walking"></i> Visitante peatonal
+            </a>
+            <a href="reportes.html?tipo=trabajadores" class="btn-reporte">
+                <i class="fas fa-hard-hat"></i> Trabajadores
+            </a>
+            <a href="reportes.html?tipo=residentes" class="btn-reporte">
+                <i class="fas fa-home"></i> Residentes
+            </a>
+        </div>
+    </div>
     </div>
     <script src="scripts/app.js"></script>
 

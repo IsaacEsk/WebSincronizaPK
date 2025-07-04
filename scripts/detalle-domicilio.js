@@ -407,6 +407,9 @@ let haCambiado = false;
 async function cargarDomicilioCompleto() {
     mostrarLoader(true);
     
+    filtrarTabla('buscar-residente', 'residentes-list');
+    filtrarTabla('buscar-trabajador', 'trabajadores-list');
+    
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const idCasa = urlParams.get('id');
@@ -1525,6 +1528,30 @@ document.querySelector('.btn-danger').addEventListener('click', async () => {
         window.history.back();
 });
 
+// Función genérica para filtrar tablas
+function filtrarTabla(inputId, tablaId) {
+    const input = document.getElementById(inputId);
+    const tabla = document.getElementById(tablaId);
+    const filas = tabla.getElementsByTagName('tr');
+
+    input.addEventListener('input', () => {
+        const texto = input.value.toLowerCase();
+        
+        for (let fila of filas) {
+            const celdas = fila.getElementsByTagName('td');
+            let coincide = false;
+            
+            for (let celda of celdas) {
+                if (celda.textContent.toLowerCase().includes(texto)) {
+                    coincide = true;
+                    break;
+                }
+            }
+            
+            fila.style.display = coincide ? '' : 'none';
+        }
+    });
+}
 
 // ========== INICIO ========== //
 document.addEventListener('DOMContentLoaded', cargarDomicilioCompleto);

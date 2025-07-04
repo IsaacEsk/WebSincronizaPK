@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes | Condominio Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/reportes.css">
+    <!-- Librería para exportar Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="reportes-container">
+        <!-- Encabezado -->
+        <div class="reportes-header">
+            <h1 id="titulo-reporte">Reporte de Visitantes Vehiculares</h1>
+        </div>
+
+        <!-- Controles de Fecha y Botones -->
+       <div class="controles-reporte">
+    <!-- Grupo de fecha (izquierda) -->
+    <div class="fecha-group">
+        <label for="fecha-reporte">Fecha:</label>
+        <input type="date" id="fecha-reporte">
+    </div>
+
+    <!-- Botones centrales -->
+    <div class="botones-accion">
+        <button id="buscar-btn" class="btn-accion"><i class="fas fa-search"></i> Buscar</button>
+        <button id="exportar-btn" class="btn-accion exportar"><i class="fas fa-file-excel"></i> Exportar</button>
+        <button id="regresar-btn" class="btn-accion regresar"><i class="fas fa-arrow-left"></i> Regresar</button>
+    </div>
+
+    <!-- Buscador (derecha) -->
+    <div class="search-box-reportes">
+        <input type="text" id="filtro-reportes" placeholder="Buscar en tabla...">
+        <i class="fas fa-search"></i>
+    </div>
+</div>
+
+   
+
+        <!-- Tabla de Resultados -->
+        <div class="tabla-container">
+            <table id="tabla-reportes">
+                <thead>
+                    <tr>
+                        <th>Reportes</th>
+                        <!-- <th>Placa/Gafete</th>
+                        <th>Nombre</th>
+                        <th>Destino</th>
+                        <th>Acciones</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se cargarán dinámicamente via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="scripts/reportes.js"></script>
+</body>
+</html>
