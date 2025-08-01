@@ -370,9 +370,9 @@ async function cargarTrabajadores(idCasa) {
         // Si quieres ver el cuerpo del error (aunque sea un 500)
         try {
             const errorBody = await response.clone().json(); // Clonar para no consumir el stream
-            console.log('📌 Cuerpo del error:', errorBody);
+            //console.log('📌 Cuerpo del error:', errorBody);
         } catch (e) {
-            console.log('📌 El servidor no devolvió JSON válido en el error');
+            //console.log('📌 El servidor no devolvió JSON válido en el error');
         }
     
         console.error('Error cargando trabajadores:', error);
@@ -473,7 +473,7 @@ document.querySelector('.main-content').addEventListener('click', (e) => {
     const id = fila.getAttribute('data-id');
     const tipo = fila.closest('#residentes-list') ? 'residente' : 'trabajador'; // Identifica la tabla
 
-    console.log("Tipo:", tipo); // Debug
+    //console.log("Tipo:", tipo); // Debug
     if (tipo === 'trabajador') {
         abrirDetalleTrabajador(id);
     } else {
@@ -947,8 +947,8 @@ function abrirDetalleResidente(idResidente) {
             if (confirmacion.isConfirmed) {
                 try {
                     // 🔥 FETCH para eliminar
-                    console.log(idResidente);
-                    console.log(residente.passw );
+                    ///console.log(idResidente);
+                    //console.log(residente.passw );
                     const response = await fetch(`${BACKEND_HOST}/api/residente/eliminar`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -976,7 +976,7 @@ function abrirDetalleResidente(idResidente) {
             const datos = result.value;
             datos.idresidente = idResidente || 0;  // Si es 0, la función hace INSERT
             
-            console.log(datos);
+            //console.log(datos);
             // 🔥 Mostrar loader mientras se guarda
             Swal.fire({
                 title: 'Guardando...',

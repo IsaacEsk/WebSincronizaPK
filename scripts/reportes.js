@@ -175,7 +175,7 @@ function renderizarTabla(datos,tipo) {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
-        });
+        }).replace(',', '');  // <- Esto quita la coma
 
         // Icono dinámico según acción (ENTRO/SALIO)
         const iconoAccion = item.accion === 'ENTRO' 
@@ -689,9 +689,74 @@ function configurarEncabezados(tipo) {
 }
 
 function exportarAExcel() {
-    console.log('Exportando a Excel...');
-    // Lógica usando la librería xlsx
+    const titulo = document.getElementById('titulo-reporte').textContent || 'Reporte';
+    let fecha = document.getElementById('fecha-reporte').value;
+    
+    // Si no hay fecha definida, usar la actual con formato chido
+    if (!fecha) {
+        const hoy = new Date();
+        fecha = hoy.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).replace(',', '');
+    }
+    
+    // Formatear nombre del archivo
+    const nombreArchivo = `${titulo} ${fecha}`
+        .replace(/[\/\\:*?"<>|]/g, '')
+        .replace(/\s+/g, ' ') // Reemplaza múltiples espacios por uno solo
+        .trim() + '.xlsx';
+    
+    // Generar Excel
+    const tabla = document.getElementById('tabla-reportes');
+    const wb = XLSX.utils.table_to_book(tabla);
+    
+    // Opcional: Puedes modificar propiedades del libro aquí
+    wb.Props = {
+        Title: titulo,
+        Subject: `Reporte generado el ${fecha}`,
+        Author: "Tu aplicación chingona",
+        CreatedDate: new Date()
+    };
+    
+    XLSX.writeFile(wb, nombreArchivo);
 }
+
+// function exportarAExcel() {
+
+//     // Obtener los valores para el nombre del archivo
+//     const titulo = document.getElementById('titulo-reporte').textContent || 'Reporte'; // Si no hay título, pone "Reporte"
+//     const fecha = document.getElementById('fecha-reporte').value || new Date().toLocaleDateString('es-MX'); // Si no hay fecha, pone la de hoy
+
+//     const nombreArchivo = `${titulo} ${fecha}`
+//         .replace(/[\/\\:*?"<>|]/g, '') // Elimina caracteres no válidos para nombres de archivo
+//         .trim() + '.csv'; // Le añade la extensión
+
+
+
+//     const tabla = document.getElementById('tabla-reportes');
+//     let csv = [];
+    
+//     // Recorrer filas
+//     for (let row of tabla.rows) {
+//         let rowData = [];
+//         for (let cell of row.cells) {
+//             rowData.push(cell.innerText);
+//         }
+//         csv.push(rowData.join(","));
+//     }
+    
+//     // Crear archivo
+//     let csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+//     let encodedUri = encodeURI(csvContent);
+//     let link = document.createElement("a");
+//     link.setAttribute("href", encodedUri);
+//     link.setAttribute("download", nombreArchivo);
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+// }
 
 function filtrarReportes() {
     const input = document.getElementById('filtro-reportes');

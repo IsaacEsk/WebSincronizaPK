@@ -12,10 +12,10 @@ const condoString = sessionStorage.getItem('condominioSeleccionado');
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Sie entre a ver si muestro la presala ");
-    console.log(condominiosGuardados);
-    console.log(usuarioGuardado);
-    console.log(condominioSeleccionado);
+    // console.log("Sie entre a ver si muestro la presala ");
+    // console.log(condominiosGuardados);
+    // console.log(usuarioGuardado);
+    // console.log(condominioSeleccionado);
 
 
     if(usuarioGuardado)
@@ -62,7 +62,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         }
 
         // ¡Éxito! Aquí manejamos la respuesta (data.user y data.condominios)
-        console.log("Login chido:", data);
+        //console.log("Login chido:", data);
 
         // 🚀 Pre-sala de condominios (aquí la magia)
         if (data.condominios && data.condominios.length > 0) {
@@ -92,7 +92,7 @@ function mostrarPresalaCondominios(condominios, user) {
     if (loginContainer) {
         loginContainer.style.display = 'none';
     } else {
-        console.error("No se encontró .login-container, mi brody");
+        console.error("No se encontró .login-container");
         return;
     }
     const userName = (user && user.name) ? user.name : 'Usuario';
@@ -155,7 +155,7 @@ function seleccionarCondominio(condoId) {
         const condominios = JSON.parse(sessionStorage.getItem('condominiosUsuario'));
     const condoSeleccionado = condominios.find(c => c.id === condoId);
     
-    console.log("Condominio seleccionado:", condoSeleccionado);
+    //console.log("Condominio seleccionado:", condoSeleccionado);
     sessionStorage.setItem('condominioSeleccionado', JSON.stringify(condoSeleccionado));
     
     window.location.href = `main.html`;
