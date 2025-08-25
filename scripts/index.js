@@ -85,9 +85,8 @@ function formatearFecha(fechaISO) {
 }
 
 function mostrarPresalaCondominios(condominios, user) {
-
     sessionStorage.setItem('condominiosUsuario', JSON.stringify(condominios));
-    // 1. Ocultamos el contenedor completo del login (usando la CLASE)
+    
     const loginContainer = document.querySelector('.login-container');
     if (loginContainer) {
         loginContainer.style.display = 'none';
@@ -95,43 +94,50 @@ function mostrarPresalaCondominios(condominios, user) {
         console.error("No se encontró .login-container");
         return;
     }
+    
     const userName = (user && user.name) ? user.name : 'Usuario';
     const userEmail = (user && user.email) ? user.email : '';
     
-    // Verificar si hay condominios caducados
     const tieneCaducados = condominios.some(condo => new Date(condo.deleted_at) < new Date());
     
     const presalaHTML = `
         <div class="presala">
-            <h2>¡Bienvenido, ${userName}!</h2>
-           <div class="user-actions"> <!-- Contenedor nuevo para organizar botones -->
-            <button class="change-password-btn" title="Cambiar contraseña">
-                <i class="fas fa-key"></i> Cambiar contraseña
-            </button>
-            <button class="logout-btn" title="Cerrar sesión">
-                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-            </button>
-        </div>
-            <p>Selecciona un condominio:</p>
-            <div class="condominios-list">
-                ${condominios.map(condo => {
-                    const estaCaducado = new Date(condo.deleted_at) < new Date();
-                    return `
-                    <div class="condo-card ${estaCaducado ? 'expired' : ''}">
-                        <button class="condo-btn" 
-                            onclick="${estaCaducado ? '' : `seleccionarCondominio(${condo.id})`}"
-                            ${estaCaducado ? 'disabled' : ''}>
-                            ${condo.name}
-                        </button>
-                        <div class="condo-meta">
-                            <span class="expiry ${estaCaducado ? 'expired' : ''}">
-                                Vigencia: ${formatearFecha(condo.deleted_at)}
-                            </span>
-                        </div>
-                    </div>
-                    `;
-                }).join('')}
+            <div class="presala-header">
+                <h2>¡Bienvenido, ${userName}!</h2>
+                <div class="user-actions">
+                    <button class="change-password-btn" title="Cambiar contraseña">
+                        <i class="fas fa-key"></i> <span class="action-text">Cambiar contraseña</span>
+                    </button>
+                    <button class="logout-btn" title="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i> <span class="action-text">Cerrar sesión</span>
+                    </button>
+                </div>
             </div>
+            
+            <p class="selection-prompt">Selecciona un condominio:</p>
+            
+            <div class="condominios-container">
+                <div class="condominios-grid">
+                    ${condominios.map(condo => {
+                        const estaCaducado = new Date(condo.deleted_at) < new Date();
+                        return `
+                        <div class="condo-card ${estaCaducado ? 'expired' : ''}">
+                            <button class="condo-btn" 
+                                onclick="${estaCaducado ? '' : `seleccionarCondominio(${condo.id})`}"
+                                ${estaCaducado ? 'disabled' : ''}>
+                                <span class="condo-name">${condo.name}</span>
+                                <span class="condo-meta">
+                                    <span class="expiry ${estaCaducado ? 'expired' : ''}">
+                                        Vigencia: ${formatearFecha(condo.deleted_at)}
+                                    </span>
+                                </span>
+                            </button>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
             ${tieneCaducados ? `
             <div class="renew-notice">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -145,10 +151,74 @@ function mostrarPresalaCondominios(condominios, user) {
         </div>
     `;
     
-    // 3. Inyectamos la pre-sala después del body (o en un contenedor específico)
-    const mainContainer = document.body;
-    mainContainer.insertAdjacentHTML('beforeend', presalaHTML);
+    document.body.insertAdjacentHTML('beforeend', presalaHTML);
 }
+
+// function mostrarPresalaCondominios(condominios, user) {
+
+//     sessionStorage.setItem('condominiosUsuario', JSON.stringify(condominios));
+//     // 1. Ocultamos el contenedor completo del login (usando la CLASE)
+//     const loginContainer = document.querySelector('.login-container');
+//     if (loginContainer) {
+//         loginContainer.style.display = 'none';
+//     } else {
+//         console.error("No se encontró .login-container");
+//         return;
+//     }
+//     const userName = (user && user.name) ? user.name : 'Usuario';
+//     const userEmail = (user && user.email) ? user.email : '';
+    
+//     // Verificar si hay condominios caducados
+//     const tieneCaducados = condominios.some(condo => new Date(condo.deleted_at) < new Date());
+    
+//     const presalaHTML = `
+//         <div class="presala">
+//             <h2>¡Bienvenido, ${userName}!</h2>
+//            <div class="user-actions"> <!-- Contenedor nuevo para organizar botones -->
+//             <button class="change-password-btn" title="Cambiar contraseña">
+//                 <i class="fas fa-key"></i> Cambiar contraseña
+//             </button>
+//             <button class="logout-btn" title="Cerrar sesión">
+//                 <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+//             </button>
+//         </div>
+//             <p>Selecciona un condominio:</p>
+//             <div class="condominios-list">
+//                 ${condominios.map(condo => {
+//                     const estaCaducado = new Date(condo.deleted_at) < new Date();
+//                     return `
+//                     <div class="condo-card ${estaCaducado ? 'expired' : ''}">
+//                         <button class="condo-btn" 
+//                             onclick="${estaCaducado ? '' : `seleccionarCondominio(${condo.id})`}"
+//                             ${estaCaducado ? 'disabled' : ''}>
+//                             ${condo.name}
+//                         </button>
+//                         <div class="condo-meta">
+//                             <span class="expiry ${estaCaducado ? 'expired' : ''}">
+//                                 Vigencia: ${formatearFecha(condo.deleted_at)}
+//                             </span>
+//                         </div>
+//                     </div>
+//                     `;
+//                 }).join('')}
+//             </div>
+//             ${tieneCaducados ? `
+//             <div class="renew-notice">
+//                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+//                     <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#D32F2F"/>
+//                 </svg>
+//                 <p>¿Condominio caducado? <strong>Renovaciones:</strong><br>
+//                 <a href="tel:3331253000">33 3125 3000</a> • 
+//                 <a href="https://wa.me/523318311824" target="_blank">WhatsApp</a></p>
+//             </div>
+//             ` : ''}
+//         </div>
+//     `;
+    
+//     // 3. Inyectamos la pre-sala después del body (o en un contenedor específico)
+//     const mainContainer = document.body;
+//     mainContainer.insertAdjacentHTML('beforeend', presalaHTML);
+// }
 
 // Función pa' cuando seleccione un condominio
 function seleccionarCondominio(condoId) {
