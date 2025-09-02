@@ -1,7 +1,7 @@
 
-const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+//const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 
-//const BACKEND_HOST = 'http://localhost:3000';
+const BACKEND_HOST = 'http://localhost:3000';
 
 
 // ========== CONFIGURACIÓN MQTT ========== //

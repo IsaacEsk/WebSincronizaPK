@@ -1,7 +1,7 @@
-//const BACKEND_HOST = 'http://localhost:3000';
+const BACKEND_HOST = 'http://localhost:3000';
 
 
-const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+//const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 
 // Verificamos si hay condominios en sessionStorage para mostrar la pre-sala directamente
 const condominiosGuardados = JSON.parse(sessionStorage.getItem('condominiosUsuario'));

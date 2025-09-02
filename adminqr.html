@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KNOVO </title>
+    <title>KNOVO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="styles/adminqr.css"> <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="styles/adminqr.css">
 </head>
 <body>
     <div class="adminqr-container">
@@ -18,7 +18,12 @@
             </div>
         </div>
 
-        <!-- Contenedor de cards (2 columnas) -->
+        <!-- Contenedor para el iframe (oculto inicialmente) -->
+        <div id="contenedor-knovo" style="display: none;">
+            <!-- Aquí se insertará el iframe si el cliente tiene el servicio -->
+        </div>
+
+        <!-- Contenedor de cards (2 columnas) - Visible por defecto -->
         <div class="cards-grid" id="cards-container">
             <!-- Cards generadas dinámicamente desde JS -->
             <div class="card-skeleton"></div> <!-- Placeholder mientras carga -->
