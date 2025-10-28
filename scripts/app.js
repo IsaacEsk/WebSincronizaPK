@@ -1,6 +1,6 @@
-const BACKEND_HOST = 'http://localhost:3000';
+//const BACKEND_HOST = 'http://localhost:3000';
 
-//const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 
 const DEFAULT_VALUES = {
   contrato: 0,
@@ -536,3 +536,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 });
+
+// Funciones para abrir modales
+        document.getElementById('btnReportes').addEventListener('click', function() {
+            document.getElementById('modalReportes').style.display = 'flex';
+        });
+        
+        document.getElementById('btnKnovo').addEventListener('click', function() {
+            document.getElementById('modalKnovo').style.display = 'flex';
+        });
+        
+        document.getElementById('btnUtilidades').addEventListener('click', function() {
+            document.getElementById('modalUtilidades').style.display = 'flex';
+        });
+        
+        // Función para cerrar modales
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).style.display = 'none';
+        }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.querySelectorAll('.modal-general').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+        
+        // Funciones para los botones de utilidades (ejemplo)
+        function abrirUsuarios() {
+            Swal.fire('Usuarios', 'Aquí iría la administración de usuarios', 'info');
+        }
+        
+        function abrirInstrucciones() {
+            //Swal.fire('Instrucciones', 'Aquí irían las instrucciones para vigilancia', 'info');
+             cerrarModal('modalUtilidades');
+        
+          // Redirigir a la página de instrucciones
+          window.location.href = 'instrucciones-vigilancia.html';
+        }
+        
+        function abrirSanciones() {
+            Swal.fire('Sanciones', 'Aquí iría el módulo de sanciones', 'info');
+        }

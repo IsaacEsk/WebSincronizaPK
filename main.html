@@ -70,39 +70,95 @@
        
 
 
-        <!-- Agregar esta sección de botones de reportes -->
+       <!-- Sección derecha compacta con solo 3 botones -->
         <div class="reportes-section">
-        <h2>REPORTES</h2>
-        <div class="reportes-botones">
-            <a href="reportes.html?tipo=vehicular" class="btn-reporte">
-                <i class="fas fa-car"></i> Visitante vehicular
-            </a>
-            <a href="reportes.html?tipo=peatonal" class="btn-reporte">
-                <i class="fas fa-walking"></i> Visitante peatonal
-            </a>
-            <a href="reportes.html?tipo=trabajadores" class="btn-reporte">
-                <i class="fas fa-hard-hat"></i> Trabajadores
-            </a>
-            <a href="reportes.html?tipo=residentes" class="btn-reporte">
-                <i class="fas fa-home"></i> Residentes
-            </a>
-
-            <!-- === NUEVOS BOTONES "KNOVO" === -->
-            <h2>KNOVO</h2>
+            <h2>ACCESOS RÁPIDOS</h2>
             <div class="reportes-botones">
-                <a href="adminqr.html?tipo=aceptados" class="btn-reporte">
+                <button id="btnReportes" class="btn-reporte">
+                    <i class="fas fa-chart-bar"></i> REPORTES
+                </button>
+                <button id="btnKnovo" class="btn-reporte">
+                    <i class="fas fa-qrcode"></i> KNOVO
+                </button>
+                <button id="btnUtilidades" class="btn-reporte">
+                    <i class="fas fa-tools"></i> UTILERÍAS
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de REPORTES -->
+    <div id="modalReportes" class="modal-general">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-bar"></i> REPORTES</h2>
+            </div>
+            <div class="modal-botones">
+                <a href="reportes.html?tipo=vehicular" class="btn-modal btn-reporte-modal">
+                    <i class="fas fa-car"></i> Visitante vehicular
+                </a>
+                <a href="reportes.html?tipo=peatonal" class="btn-modal btn-reporte-modal">
+                    <i class="fas fa-walking"></i> Visitante peatonal
+                </a>
+                <a href="reportes.html?tipo=trabajadores" class="btn-modal btn-reporte-modal">
+                    <i class="fas fa-hard-hat"></i> Trabajadores
+                </a>
+                <a href="reportes.html?tipo=residentes" class="btn-modal btn-reporte-modal">
+                    <i class="fas fa-home"></i> Residentes
+                </a>
+            </div>
+            <button class="btn-cerrar-modal" onclick="cerrarModal('modalReportes')">
+                Cerrar
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal de KNOVO -->
+    <div id="modalKnovo" class="modal-general">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-qrcode"></i> KNOVO</h2>
+            </div>
+            <div class="modal-botones">
+                <a href="adminqr.html?tipo=aceptados" class="btn-modal btn-knovo-modal">
                     <i class="fas fa-check-circle"></i> Aceptados
                 </a>
-                <a href="adminqr.html?tipo=rechazados" class="btn-reporte">
+                <a href="adminqr.html?tipo=rechazados" class="btn-modal btn-knovo-modal">
                     <i class="fas fa-times-circle"></i> Rechazados
                 </a>
-                <a href="adminqr.html?tipo=pendientes" class="btn-reporte">
+                <a href="adminqr.html?tipo=pendientes" class="btn-modal btn-knovo-modal">
                     <i class="fas fa-hourglass-half"></i> Pendientes
                 </a>
+            </div>
+            <button class="btn-cerrar-modal" onclick="cerrarModal('modalKnovo')">
+                Cerrar
+            </button>
         </div>
-        
     </div>
+    
+    <!-- Modal de UTILERÍAS -->
+    <div id="modalUtilidades" class="modal-general">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-tools"></i> UTILERÍAS</h2>
+            </div>
+            <div class="modal-botones">
+                <!-- <button class="btn-modal btn-utilidad-modal" onclick="abrirUsuarios()">
+                    <i class="fas fa-users"></i> Usuarios
+                </button> -->
+                <button class="btn-modal btn-utilidad-modal" onclick="abrirInstrucciones()">
+                    <i class="fas fa-clipboard-list"></i> Instrucciones a Vigilancia
+                </button>
+                <!-- <button class="btn-modal btn-utilidad-modal" onclick="abrirSanciones()">
+                    <i class="fas fa-gavel"></i> Sanciones
+                </button> -->
+            </div>
+            <button class="btn-cerrar-modal" onclick="cerrarModal('modalUtilidades')">
+                Cerrar
+            </button>
+        </div>
     </div>
+    
     <script src="scripts/app.js"></script>
 
 </html>

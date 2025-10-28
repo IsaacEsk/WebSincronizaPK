@@ -583,3 +583,142 @@ a.btn-reporte:hover {
     margin-top: 15px;
     font-style: italic;
 }
+
+/* === ESTILOS PARA TODOS LOS MODALES === */
+.modal-general {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50; /* Cambiado a color oscuro para mejor contraste */
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.modal-header h2 {
+    color: #2c3e50 !important; /* Forzar color oscuro */
+    margin: 0;
+}
+
+.modal-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-modal {
+    padding: 12px 15px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: left;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none !important; /* Eliminar subrayado */
+}
+
+/* Colores diferentes para cada modal */
+.btn-reporte-modal { 
+    background: #3498db; 
+    text-decoration: none !important;
+}
+
+.btn-reporte-modal:hover { 
+    background: #2980b9; 
+    transform: translateX(5px); 
+    text-decoration: none !important;
+}
+
+.btn-knovo-modal { 
+    background: #9b59b6; 
+    text-decoration: none !important;
+}
+
+.btn-knovo-modal:hover { 
+    background: #8e44ad; 
+    transform: translateX(5px); 
+    text-decoration: none !important;
+}
+
+.btn-utilidad-modal { 
+    background: #2ecc71; 
+}
+
+.btn-utilidad-modal:hover { 
+    background: #27ae60; 
+    transform: translateX(5px); 
+}
+
+.btn-cerrar-modal {
+    width: 100%;
+    padding: 10px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.btn-cerrar-modal:hover {
+    background: #c0392b;
+}
+
+/* Botones principales con colores distintivos */
+#btnReportes {
+    background: #3498db;
+}
+
+#btnReportes:hover {
+    background: #2980b9;
+    transform: translateX(3px);
+}
+
+#btnKnovo {
+    background: #9b59b6;
+}
+
+#btnKnovo:hover {
+    background: #8e44ad;
+    transform: translateX(3px);
+}
+
+#btnUtilidades {
+    background: #2ecc71;
+}
+
+#btnUtilidades:hover {
+    background: #27ae60;
+    transform: translateX(3px);
+}
+
+/* Eliminar subrayado de enlaces en modales */
+.modal-content a {
+    text-decoration: none !important;
+}

@@ -1,6 +1,6 @@
-const BACKEND_HOST = 'http://localhost:3000';
+//const BACKEND_HOST = 'http://localhost:3000';
 
-//const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
 
 
 const getMqttTopic = () => {
@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = await response.json();
         const hasService = result.data[0].exists; // true o false
 
-        if (!hasService) {
-            // Si tiene el servicio: MOSTRAR IFRAME y OCULTAR las cards y el header
+
+        // Si tiene el servicio: MOSTRAR IFRAME y OCULTAR las cards y el header
             contenedorKnovo.style.display = 'block';
             cardsContainer.style.display = 'none';
             adminqrHeader.style.display = 'none';
@@ -85,11 +85,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     allowfullscreen>
                 </iframe>
             `;
-        } else {
-            // Si NO tiene el servicio: mostrar las cards normal (ya está visible por defecto)
-            // Aquí puedes cargar tus cards como lo hacías originalmente
-            loadCards(); // Esta función debería estar en tu código original
-        }
+
+
+        // if (!hasService) {
+        //     // Si tiene el servicio: MOSTRAR IFRAME y OCULTAR las cards y el header
+        //     contenedorKnovo.style.display = 'block';
+        //     cardsContainer.style.display = 'none';
+        //     adminqrHeader.style.display = 'none';
+
+        //     // Insertar el iframe
+        //     contenedorKnovo.innerHTML = `
+        //         <iframe 
+        //             src="https://eskayser.com/knovo/" 
+        //             width="100%" 
+        //             height="600px" 
+        //             frameborder="0" 
+        //             allowfullscreen>
+        //         </iframe>
+        //     `;
+        // } else {
+        //     // Si NO tiene el servicio: mostrar las cards normal (ya está visible por defecto)
+        //     // Aquí puedes cargar tus cards como lo hacías originalmente
+        //     loadCards(); // Esta función debería estar en tu código original
+        // }
     } catch (error) {
         console.error('Error verificando el servicio:', error);
         // En caso de error, mostramos las cards normales
