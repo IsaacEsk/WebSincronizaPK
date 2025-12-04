@@ -2,7 +2,10 @@
 
 //const BACKEND_HOST = 'http://localhost:3000';
 
-const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+//const BACKEND_HOST = 'https://sincronizapkbackend.onrender.com';
+// Nuevo: tomar la URL desde config.js o fallback
+const BACKEND_HOST = window.BACKEND_HOST;
+
 
 // ========== CONFIGURACIÓN MQTT ========== //
 const getMqttTopic = () => {
