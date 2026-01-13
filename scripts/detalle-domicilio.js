@@ -44,6 +44,8 @@ const getMqttTopic = () => {
 const originalFetch = window.fetch;
 
 window.fetch = async (url, options = {}) => {
+
+
   // 1. Timeout configurable (default: 8 segundos)
   const timeout = options.timeout || 60000; 
   const controller = new AbortController();
@@ -530,6 +532,7 @@ function abrirDetalleTrabajador(idTrabajador) {
     { id: 'D', nombre: 'Domingo', pos: 6 }
     ];
 
+
     Swal.fire({
         title: `<small>DETALLE TRABAJADOR</small>`,
         html: `
@@ -559,6 +562,36 @@ function abrirDetalleTrabajador(idTrabajador) {
                             Duerme en el domicilio
                         </label>
                     </div>
+
+                    <!-- 🔥 Sección de Datos Personales (expandible) -->
+                <div class="campo-extra">
+                    <details>
+                        <summary>📝 Datos personales</summary>
+                        <div class="subgrid">
+                            <div class="campo">
+                                <label>Calle</label>
+                                <input type="text" value="${trabajador.calle || '  '}" id="inputCalle">
+                            </div>
+                            <div class="campo">
+                                <label>Colonia</label>
+                                <input type="text" value="${trabajador.colonia || '  '}" id="inputColonia">
+                            </div>
+                            <div class="campo">
+                                <label>Teléfono</label>
+                                <input type="tel" value="${trabajador.tel || '  '}" id="inputTelefono">
+                            </div>
+                            <div class="campo">
+                                <label>C.P.</label>
+                                <input type="text" value="${trabajador.cp || '  '}" id="inputCP">
+                            </div>
+                            <div class="campo">
+                                <label>Encargado</label>
+                                <input type="text" value="${trabajador.encargado || '  '}" id="inputEncargado">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
                 </div>
 
                 <!-- Columna Derecha -->
@@ -607,36 +640,18 @@ function abrirDetalleTrabajador(idTrabajador) {
                         <label>Observaciones</label>
                         <textarea id="textareaObs">${trabajador.obs || 'Sin observaciones'}</textarea>
                     </div>
+
+                    
+                    <div id="badgeFotoContainer" style="margin-top:10px; text-align:center;">
+                        ${trabajador.idfoto3 > 0 
+                            ? `<span class="badge-foto">📸 FOTO REGISTRADA</span>`
+                            : `<span class="badge-no-foto">⚠️ SIN FOTO</span>`
+                        }
+                    </div>
+
                 </div>
 
-                <!-- 🔥 Sección de Datos Personales (expandible) -->
-                <div class="campo-extra">
-                    <details>
-                        <summary>📝 Datos personales</summary>
-                        <div class="subgrid">
-                            <div class="campo">
-                                <label>Calle</label>
-                                <input type="text" value="${trabajador.calle || '  '}" id="inputCalle">
-                            </div>
-                            <div class="campo">
-                                <label>Colonia</label>
-                                <input type="text" value="${trabajador.colonia || '  '}" id="inputColonia">
-                            </div>
-                            <div class="campo">
-                                <label>Teléfono</label>
-                                <input type="tel" value="${trabajador.tel || '  '}" id="inputTelefono">
-                            </div>
-                            <div class="campo">
-                                <label>C.P.</label>
-                                <input type="text" value="${trabajador.cp || '  '}" id="inputCP">
-                            </div>
-                            <div class="campo">
-                                <label>Encargado</label>
-                                <input type="text" value="${trabajador.encargado || '  '}" id="inputEncargado">
-                            </div>
-                        </div>
-                    </details>
-                </div>
+                
             </div>
         `,
         showCancelButton: true,
@@ -1117,8 +1132,7 @@ function abrirNuevoResidente(idCasa) {
             // 4️⃣ AUTO y OBS (solo normalización, pueden estar vacíos)
             const autoNormalizado = normalizarTexto(document.getElementById('inputAuto').value);
             const obsNormalizada = normalizarTexto(document.getElementById('textareaObs').value);
-            
-
+  
             return {
                 nombre: nombreNormalizado,
                 auto: autoNormalizado,
@@ -1211,6 +1225,35 @@ function abrirNuevoTrabajador() {
                             Duerme en el domicilio
                         </label>
                     </div>
+
+                    <!-- 🔥 Sección de Datos Personales -->
+                    <div class="campo-extra">
+                        <details open>
+                            <summary>📝 Datos personales</summary>
+                            <div class="subgrid">
+                                <div class="campo">
+                                    <label>Calle</label>
+                                    <input type="text" id="inputCalle" placeholder="Ej. Av. Principal">
+                                </div>
+                                <div class="campo">
+                                    <label>Colonia</label>
+                                    <input type="text" id="inputColonia" placeholder="Ej. Centro">
+                                </div>
+                                <div class="campo">
+                                    <label>Teléfono</label>
+                                    <input type="tel" id="inputTelefono" placeholder="Ej. 5512345678">
+                                </div>
+                                <div class="campo">
+                                    <label>C.P.</label>
+                                    <input type="text" id="inputCP" placeholder="Ej. 12345">
+                                </div>
+                                <div class="campo">
+                                    <label>Encargado</label>
+                                    <input type="text" id="inputEncargado" placeholder="Ej. Ing. Pérez">
+                                </div>
+                            </div>
+                        </details>
+                    </div>
                 </div>
 
                 <!-- Columna Derecha -->
@@ -1251,36 +1294,27 @@ function abrirNuevoTrabajador() {
                         <label>Observaciones</label>
                         <textarea id="textareaObs" placeholder="Detalles adicionales"></textarea>
                     </div>
-                </div>
-
-                <!-- 🔥 Sección de Datos Personales -->
-                <div class="campo-extra">
+                    <!-- 🔥 FOTO DEL TRABAJADOR -->
+                    <div class="campo-extra">
                     <details open>
-                        <summary>📝 Datos personales</summary>
+                        <summary>📸 Fotografía del trabajador</summary>
                         <div class="subgrid">
-                            <div class="campo">
-                                <label>Calle</label>
-                                <input type="text" id="inputCalle" placeholder="Ej. Av. Principal">
-                            </div>
-                            <div class="campo">
-                                <label>Colonia</label>
-                                <input type="text" id="inputColonia" placeholder="Ej. Centro">
-                            </div>
-                            <div class="campo">
-                                <label>Teléfono</label>
-                                <input type="tel" id="inputTelefono" placeholder="Ej. 5512345678">
-                            </div>
-                            <div class="campo">
-                                <label>C.P.</label>
-                                <input type="text" id="inputCP" placeholder="Ej. 12345">
-                            </div>
-                            <div class="campo">
-                                <label>Encargado</label>
-                                <input type="text" id="inputEncargado" placeholder="Ej. Ing. Pérez">
+                            <div class="campo" style="grid-column: span 2;">
+                                <div id="dropAreaFoto" class="drop-foto">
+                                    <input type="file" id="fileFoto" accept="image/*" hidden>
+                                    <p id="dropTextFoto">Arrastra la foto o haz click</p>
+                                </div>
+                                <img id="previewRostro" style="display:none; margin-top:10px; width:160px; height:auto; border-radius:6px;">
                             </div>
                         </div>
                     </details>
+                    </div>
+
                 </div>
+
+                
+                
+
             </div>
         `,
         showCancelButton: true,
@@ -1288,6 +1322,10 @@ function abrirNuevoTrabajador() {
         cancelButtonText: 'Cancelar',
         width: '800px',
         showDenyButton: false, // Sin botón de eliminar
+        didOpen: () => {
+        instalarFotoHandler();
+        },
+
         preConfirm: async () => {
             // 🔥 Validaciones (igual que en edición)
             const nombreInput = document.getElementById('inputNombre').value.trim();
@@ -1350,38 +1388,275 @@ function abrirNuevoTrabajador() {
             };
         }
     }).then(async (result) => {
-        if (result.isConfirmed) {
-            const datos = result.value;
-            
-            // Mostrar loader
-            Swal.fire({
-                title: 'Guardando...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
+    if (result.isConfirmed) {
+    const datos = result.value;
 
-            try {
-                const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire('¡Guardado!', 'Trabajador agregado correctamente', 'success');
-                    // Recargar lista si existe la función
-                    
-                        await cargarTrabajadores(idCasacache);
-                    
-                } else {
-                    throw new Error(data.error || 'Error al guardar');
-                }
-            } catch (error) {
-                Swal.fire('Error', error.message, 'error');
-            }
-        }
+    Swal.fire({
+        title: 'Guardando...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
     });
+
+    try {
+        // 1️⃣ Subir foto primero
+        const idFoto = await mandarFotoAlBackend();
+        datos.idfoto = idFoto || 0;
+
+        // 2️⃣ Guardar trabajador
+        const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            Swal.fire('¡Guardado!', 'Trabajador agregado correctamente', 'success');
+            await cargarTrabajadores(idCasacache);
+        } else {
+            throw new Error(data.error || 'Error al guardar');
+        }
+
+    } catch (error) {
+        Swal.fire('Error', error.message, 'error');
+    }
+}
+
+});
+}
+
+
+function instalarFotoHandler() {
+    const dropArea = document.getElementById("dropAreaFoto");
+    const fileInput = document.getElementById("fileFoto");
+    const previewRostro = document.getElementById("previewRostro");
+
+    ["dragenter", "dragover"].forEach(ev =>
+        dropArea.addEventListener(ev, e => {
+            e.preventDefault();
+            dropArea.classList.add("hover");
+        })
+    );
+    ["dragleave", "drop"].forEach(ev =>
+        dropArea.addEventListener(ev, e => {
+            e.preventDefault();
+            dropArea.classList.remove("hover");
+        })
+    );
+
+    dropArea.addEventListener("click", () => fileInput.click());
+
+    dropArea.addEventListener("drop", e => {
+        const file = e.dataTransfer.files[0];
+        if (file) procesarFoto(file, previewRostro);
+    });
+
+    fileInput.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (file) procesarFoto(file, previewRostro);
+    });
+}
+
+let faceModel = null;
+async function loadFaceModel() {
+    if (faceModel) return faceModel;
+
+    // 🔥 GUARDAR FETCH ACTUAL
+    const customFetch = window.fetch;
+
+    try {
+        // 🔥 USAR FETCH ORIGINAL SOLO DURANTE LA CARGA DEL MODELO
+        window.fetch = originalFetch;
+
+        faceModel = await blazeface.load();
+        return faceModel;
+
+    } finally {
+        // 🔥 RESTAURAR FETCH PERSONALIZADO
+        window.fetch = customFetch;
+    }
+}
+
+
+async function compressImage(base64, maxSizeBytes = 100 * 1024) {
+    const blob = await (await fetch(base64)).blob();
+    
+    let quality = 0.9;
+    let compressedBase64 = base64;
+
+    while (true) {
+        const compressedBlob = await new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                canvas.toBlob(
+                    resolve,
+                    "image/jpeg",
+                    quality
+                );
+            };
+            img.src = base64;
+        });
+
+        if (compressedBlob.size <= maxSizeBytes || quality < 0.2) {
+            // convertir a base64
+            const reader = new FileReader();
+            reader.readAsDataURL(compressedBlob);
+            await new Promise(res => reader.onloadend = res);
+            return reader.result;
+        }
+
+        quality -= 0.1; // ir bajando la calidad
+    }
+}
+
+async function mandarFotoAlBackend() {
+    if (!window.fotoRecortada) {
+        console.error("No hay foto recortada");
+        return null;
+    }
+
+    // quitar el encabezado "data:image/jpeg;base64,"
+    const base64 = window.fotoRecortada.split(",")[1];
+
+    try {
+        const response = await fetch(`${BACKEND_HOST}/api/spalta`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ foto: base64 })
+        });
+
+        const data = await response.json();
+        //console.log("📥 Respuesta backend foto:", data);
+
+        if (!data.success) {
+            console.error("❌ Error backend:", data.error);
+            return null;
+        }
+
+        // Extraer el id_foto
+        const idFoto = data.id;
+
+        if (!idFoto) {
+            console.error("❌ No se encontró id_foto en la respuesta");
+            return null;
+        }
+
+        //console.log("🟢 Foto insertada con ID:", idFoto);
+        return idFoto;
+
+    } catch (err) {
+        console.error("❌ Error mandando foto:", err);
+        return null;
+    }
+}
+
+async function procesarFoto(file, previewEl) {
+    await loadFaceModel();
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = async () => {
+        const faces = await faceModel.estimateFaces(img);
+
+        if (faces.length === 0) {
+            const msg = document.querySelector('.swal2-validation-message');
+            if (msg) {
+                msg.innerHTML = "⚠️ La imagen no contiene un rostro válido.";
+                msg.style.display = "block";
+            } else {
+                Swal.showValidationMessage("⚠️ La imagen no contiene un rostro válido.");
+            }
+
+            document.getElementById("dropAreaFoto").style.display = "flex";
+            previewEl.style.display = "none";
+            return;
+        }
+
+        Swal.resetValidationMessage();
+
+        // rostro más grande
+        const mainFace = faces.reduce((a, b) =>
+            (a.bottomRight[0] - a.topLeft[0]) * (a.bottomRight[1] - a.topLeft[1]) >
+            (b.bottomRight[0] - b.topLeft[0]) * (b.bottomRight[1] - b.topLeft[1]) ? a : b
+        );
+
+        const [x1, y1] = mainFace.topLeft;
+        const [x2, y2] = mainFace.bottomRight;
+
+        const w = x2 - x1;
+        const h = y2 - y1;
+
+        // -----------------------------------------
+        // 🚨 VALIDACIÓN DEL TAMAÑO DEL ROSTRO
+        // -----------------------------------------
+
+        const MIN_PIXELS = 90;
+
+        if (w < MIN_PIXELS || h < MIN_PIXELS) {
+
+            Swal.showValidationMessage(
+                "⚠️ El rostro es demasiado pequeño."
+            );
+
+            document.getElementById("dropAreaFoto").style.display = "flex";
+            previewEl.style.display = "none";
+            return;
+        }
+
+        // porcentaje del área
+        const faceArea = w * h;
+        const totalArea = img.width * img.height;
+        const pct = (faceArea / totalArea) * 100;
+
+        if (pct < 5) {
+
+            Swal.showValidationMessage(
+                "⚠️ El rostro aparece muy lejos."
+            );
+
+            document.getElementById("dropAreaFoto").style.display = "flex";
+            previewEl.style.display = "none";
+            return;
+        }
+
+        // -----------------------------------------
+        // ✔ RECORTE SI TODO ESTÁ OK
+        // -----------------------------------------
+
+        const padX = w * 0.35;
+        const padY = h * 0.85;
+
+        const cropX = Math.max(0, x1 - padX);
+        const cropY = Math.max(0, y1 - padY);
+        const cropW = Math.min(img.width, w + padX * 2);
+        const cropH = Math.min(img.height, h + padY * 2);
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 640;
+
+        ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+
+        const finalFoto = canvas.toDataURL("image/jpeg", 0.92);
+
+        previewEl.src = finalFoto;
+        previewEl.style.display = "block";
+
+        document.getElementById("dropAreaFoto").style.display = "none";
+
+        window.fotoRecortada = await compressImage(finalFoto, 100 * 1024);
+    };
 }
 
 

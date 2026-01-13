@@ -427,3 +427,51 @@
 .radio-label.mal-uso { background: #feeaea; color: #9b1c1c; }
 .radio-label.extravio { background: #fff8e6; color: #8e6a00; }
 .radio-label.vencimiento { background: #f0f0f0; color: #555; } */
+
+/* Estilos para la sección de foto */
+/* Estilos para la sección de foto */
+
+
+/* Estilos para la sección de foto */
+
+.drop-foto {
+    border: 2px dashed #3a3a3a;
+    padding: 25px;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.drop-foto.hover {
+    background: #222;
+    border-color: #1da1f2;
+}
+#dropTextFoto {
+    font-size: 14px;
+    color: #ccc;
+}
+
+
+.badge-foto {
+    background: #28a745;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+}
+
+.badge-no-foto {
+    background: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+}
+
+
+
+

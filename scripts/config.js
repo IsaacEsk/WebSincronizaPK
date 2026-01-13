@@ -1,3 +1,6 @@
+
+
+
 // URL del backend (editar aquí para cambiar entre local / prod)
 window.BACKEND_HOST = 'http://localhost:3000';
 
