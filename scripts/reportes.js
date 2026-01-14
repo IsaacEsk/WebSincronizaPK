@@ -88,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const titulos = {
         vehicular: 'Visitantes Vehiculares',
         peatonal: 'Visitantes Peatonales',
-        trabajadores: 'Trabajadores',
-        residentes: 'Residentes'
+        trabajadores: 'Peatones',
+        residentes: 'Vehículos'
     };
     document.getElementById('titulo-reporte').textContent = `Reporte de ${titulos[tipoReporte]}`;
     

@@ -102,7 +102,8 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
             { key: 'caseta', sql: `SELECT * FROM dispositivo WHERE tipo = 2 ORDER BY nombre` },
             { key: 'residentes', sql: `SELECT * FROM residentes WHERE activo = 1 AND idcasa = '${idCasa}' ORDER BY nombre` },
             { key: 'trabajadores', sql: `SELECT * FROM trabajadores WHERE activo = 1 AND idcasa = '${idCasa}' ORDER BY nombre` },
-            { key: 'oficios', sql: `SELECT * FROM conceptos WHERE tipo = 1 AND activo = 1 ORDER BY concepto` }
+            { key: 'oficios', sql: `SELECT * FROM conceptos WHERE tipo = 1 AND activo = 1 ORDER BY concepto` },
+            { key: 'idfoto3', sql: `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'trabajadores' AND COLUMN_NAME = 'idfoto3';` },
         ];
 
         // 2️⃣ Hacer el batch fetch
@@ -150,6 +151,20 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
                     break;
             }
         });
+
+         // 🔥 NUEVO: Procesar la verificación de idfoto3 AQUÍ
+        if (result.data.idfoto3?.success) {
+            // Si hay datos en la respuesta, significa que la columna existe
+            soportaFoto = result.data.idfoto3.data.length > 0;
+            
+            // console.log(`✅ Verificación batch - idfoto3: ${soportaFoto ? 'EXISTE' : 'NO EXISTE'}`);
+            // console.log(`📊 Resultado idfoto3:`, result.data.idfoto3);
+            
+        } else {
+            //console.warn('⚠️ No se pudo verificar idfoto3, usando valor por defecto (false)');
+            soportaFoto = false;
+        }
+
 
         // 3️⃣ Procesar datos de la casa PRIMERO (si existe)
         if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
@@ -256,6 +271,10 @@ async function cargarCasetas() {
         `;
     }
 }
+
+// Variable global (asegúrate de que esté declarada antes)
+let soportaFoto = false;
+
 
 // ========== FUNCIONES AUXILIARES ========== //
 function llenarComboCategorias(data) {
@@ -534,7 +553,7 @@ function abrirDetalleTrabajador(idTrabajador) {
 
 
     Swal.fire({
-        title: `<small>DETALLE TRABAJADOR</small>`,
+        title: `<small>DETALLE PEATÓN</small>`,
         html: `
             <div class="trabajador-grid">
                 <!-- 🔥 Nombre completo (editable) -->
@@ -823,7 +842,7 @@ function abrirDetalleResidente(idResidente) {
     const fechaAlta = residente.f_alta ? new Date(residente.f_alta).toLocaleDateString('es-MX') : '  ';
 
     Swal.fire({
-        title: `<small>DETALLE RESIDENTE</small>`,
+        title: `<small>DETALLE VEHÍCULO</small>`,
         html: `
             <div class="residente-grid">
                 <!-- Campo de NOMBRE EDITABLE (NUEVO) -->
@@ -1040,7 +1059,7 @@ async function validarTag(tag) {
 
 function abrirNuevoResidente(idCasa) {
     Swal.fire({
-        title: `<small>NUEVO RESIDENTE</small>`,
+        title: `<small>NUEVO VEHÍCULO</small>`,
         html: `
             <div class="residente-grid">
                 <!-- Campo de NOMBRE EDITABLE -->
@@ -1188,12 +1207,13 @@ function abrirNuevoResidente(idCasa) {
     });
 }
 
+
 function abrirNuevoTrabajador() {
     // Fecha actual formateada
     const fechaActual = new Date().toLocaleDateString('es-MX');
     
     Swal.fire({
-        title: `<small>NUEVO TRABAJADOR</small>`,
+        title: `<small>NUEVO PEATÓN</small>`,
         html: `
             <div class="trabajador-grid">
                 <!-- 🔥 Nombre completo -->
@@ -1294,27 +1314,24 @@ function abrirNuevoTrabajador() {
                         <label>Observaciones</label>
                         <textarea id="textareaObs" placeholder="Detalles adicionales"></textarea>
                     </div>
-                    <!-- 🔥 FOTO DEL TRABAJADOR -->
+                    <!-- 🔥 FOTO DEL TRABAJADOR - SOLO SI SOPORTA FOTO -->
+                    ${soportaFoto ? `
                     <div class="campo-extra">
-                    <details open>
-                        <summary>📸 Fotografía del trabajador</summary>
-                        <div class="subgrid">
-                            <div class="campo" style="grid-column: span 2;">
-                                <div id="dropAreaFoto" class="drop-foto">
-                                    <input type="file" id="fileFoto" accept="image/*" hidden>
-                                    <p id="dropTextFoto">Arrastra la foto o haz click</p>
+                        <details open>
+                            <summary>📸 Fotografía del peatón</summary>
+                            <div class="subgrid">
+                                <div class="campo" style="grid-column: span 2;">
+                                    <div id="dropAreaFoto" class="drop-foto">
+                                        <input type="file" id="fileFoto" accept="image/*" hidden>
+                                        <p id="dropTextFoto">Arrastra la foto o haz click</p>
+                                    </div>
+                                    <img id="previewRostro" style="display:none; margin-top:10px; width:160px; height:auto; border-radius:6px;">
                                 </div>
-                                <img id="previewRostro" style="display:none; margin-top:10px; width:160px; height:auto; border-radius:6px;">
                             </div>
-                        </div>
-                    </details>
+                        </details>
                     </div>
-
+                    ` : ''}
                 </div>
-
-                
-                
-
             </div>
         `,
         showCancelButton: true,
@@ -1323,7 +1340,10 @@ function abrirNuevoTrabajador() {
         width: '800px',
         showDenyButton: false, // Sin botón de eliminar
         didOpen: () => {
-        instalarFotoHandler();
+            // Solo instalar el handler si soporta foto
+            if (soportaFoto) {
+                instalarFotoHandler();
+            }
         },
 
         preConfirm: async () => {
@@ -1344,9 +1364,8 @@ function abrirNuevoTrabajador() {
                 Swal.showValidationMessage("❌ El TAG debe estar entre 0 y 16,777,215");
                 return false;
             }
-            if(tagNumber> 0)
-            {
-            // 🔥🔥🔥 NUEVA VALIDACIÓN: ¿El TAG ya existe? 🔥🔥🔥
+            if(tagNumber > 0) {
+                // 🔥🔥🔥 NUEVA VALIDACIÓN: ¿El TAG ya existe? 🔥🔥🔥
                 const tagDuplicado = await validarTag(tagNumber);
                 if (tagDuplicado) {
                     Swal.showValidationMessage("❌ Este TAG ya está en uso. ¡Elige otro!");
@@ -1363,7 +1382,8 @@ function abrirNuevoTrabajador() {
                 return dias.join('');
             }
 
-            return {
+            // Preparar datos base
+            const datos = {
                 nombre: nombreInput.toUpperCase(),
                 oficio: parseInt(document.getElementById('selectOficio').value),
                 passw: tagNumber,
@@ -1386,46 +1406,65 @@ function abrirNuevoTrabajador() {
                 idfoto: 0,
                 idfoto2: 0
             };
+
+            // 🔥 Solo agregar idfoto3 si soporta foto
+            if (soportaFoto) {
+                datos.idfoto3 = 0;
+            }
+
+            return datos;
         }
     }).then(async (result) => {
-    if (result.isConfirmed) {
-    const datos = result.value;
+        if (result.isConfirmed) {
+            const datos = result.value;
 
-    Swal.fire({
-        title: 'Guardando...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
 
-    try {
-        // 1️⃣ Subir foto primero
-        const idFoto = await mandarFotoAlBackend();
-        datos.idfoto = idFoto || 0;
+            try {
+                // 1️⃣ Subir foto primero SOLO si soportaFoto es true
+                if (soportaFoto) {
+                    const idFoto = await mandarFotoAlBackend();
+                    datos.idfoto = idFoto || 0;
+                    // Si tienes manejo específico para foto3:
+                     datos.idfoto3 = idFoto || 0;
+                }
 
-        // 2️⃣ Guardar trabajador
-        const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos)
-        });
+                // Modificar el fetch según soportaFoto
+                const endpoint = soportaFoto 
+                    ? `${BACKEND_HOST}/api/trabajador/guardar-v2`
+                    : `${BACKEND_HOST}/api/trabajador/guardar`;
 
-        const data = await response.json();
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                // // 2️⃣ Guardar trabajador
+                // const response = await fetch(`${BACKEND_HOST}/api/trabajador/guardar`, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(datos)
+                // });
 
-        if (data.success) {
-            Swal.fire('¡Guardado!', 'Trabajador agregado correctamente', 'success');
-            await cargarTrabajadores(idCasacache);
-        } else {
-            throw new Error(data.error || 'Error al guardar');
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire('¡Guardado!', 'Trabajador agregado correctamente', 'success');
+                    await cargarTrabajadores(idCasacache);
+                } else {
+                    throw new Error(data.error || 'Error al guardar');
+                }
+
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
         }
-
-    } catch (error) {
-        Swal.fire('Error', error.message, 'error');
-    }
+    });
 }
-
-});
-}
-
 
 function instalarFotoHandler() {
     const dropArea = document.getElementById("dropAreaFoto");
