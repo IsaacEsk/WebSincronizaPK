@@ -558,7 +558,7 @@ function abrirDetalleTrabajador(idTrabajador) {
             <div class="trabajador-grid">
                 <!-- 🔥 Nombre completo (editable) -->
                 <div class="campo-nombre">
-                    <input type="text" value="${trabajador.nombre || '  '}" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE">
+                    <input type="text" value="${trabajador.nombre || '  '}" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE" maxlength="40">
                 </div>
 
                 <!-- Columna Izquierda -->
@@ -686,6 +686,10 @@ function abrirDetalleTrabajador(idTrabajador) {
             const nombreInput = document.getElementById('inputNombre').value.trim();
             if (nombreInput.length < 4) {
                 Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            if (nombreInput.length > 40) {
+                Swal.showValidationMessage("❌ El nombre no debe superar 40 caracteres");
                 return false;
             }
 
@@ -847,7 +851,7 @@ function abrirDetalleResidente(idResidente) {
             <div class="residente-grid">
                 <!-- Campo de NOMBRE EDITABLE (NUEVO) -->
                 <div class="campo-nombre">
-                    <input type="text" value="${residente.nombre}" id="inputNombre" class="nombre-editable">
+                    <input type="text" value="${residente.nombre}" id="inputNombre" class="nombre-editable" maxlength="40">
                 </div>
                 <!-- Columna Izquierda -->
                 <div class="campo">
@@ -905,6 +909,10 @@ function abrirDetalleResidente(idResidente) {
             const nombreInput = document.getElementById('inputNombre').value.trim();
             if (nombreInput.length < 4) {
                 Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            if (nombreInput.length > 40) {
+                Swal.showValidationMessage("❌ El nombre no debe superar 40 caracteres");
                 return false;
             }
             const nombreNormalizado = normalizarTexto(nombreInput);
@@ -1064,7 +1072,7 @@ function abrirNuevoResidente(idCasa) {
             <div class="residente-grid">
                 <!-- Campo de NOMBRE EDITABLE -->
                 <div class="campo-nombre">
-                    <input type="text" placeholder="Ej. Juan Pérez" id="inputNombre" class="nombre-editable">
+                    <input type="text" placeholder="Ej. Juan Pérez" id="inputNombre" class="nombre-editable" maxlength="40">
                 </div>
                 <!-- Columna Izquierda -->
                 <div class="campo">
@@ -1115,6 +1123,10 @@ function abrirNuevoResidente(idCasa) {
             const nombreInput = document.getElementById('inputNombre').value.trim();
             if (nombreInput.length < 4) {
                 Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            if (nombreInput.length > 40) {
+                Swal.showValidationMessage("❌ El nombre no debe superar 40 caracteres");
                 return false;
             }
             const nombreNormalizado = normalizarTexto(nombreInput);
@@ -1218,7 +1230,7 @@ function abrirNuevoTrabajador() {
             <div class="trabajador-grid">
                 <!-- 🔥 Nombre completo -->
                 <div class="campo-nombre">
-                    <input type="text" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE">
+                    <input type="text" id="inputNombre" class="nombre-editable" placeholder="PATERNO MATERNO NOMBRE" maxlength="40">
                 </div>
 
                 <!-- Columna Izquierda -->
@@ -1351,6 +1363,10 @@ function abrirNuevoTrabajador() {
             const nombreInput = document.getElementById('inputNombre').value.trim();
             if (nombreInput.length < 4) {
                 Swal.showValidationMessage("❌ El nombre debe tener al menos 4 caracteres");
+                return false;
+            }
+            if (nombreInput.length > 40) {
+                Swal.showValidationMessage("❌ El nombre no debe superar 40 caracteres");
                 return false;
             }
 
@@ -1495,6 +1511,15 @@ function instalarFotoHandler() {
         const file = e.target.files[0];
         if (file) procesarFoto(file, previewRostro);
     });
+
+    // Hacer la vista previa clickeable para cambiar la foto (y resetear el input)
+    previewRostro.style.cursor = 'pointer';
+    previewRostro.title = 'Haz click para cambiar la foto';
+    previewRostro.addEventListener('click', () => {
+        // Resetear el value para permitir seleccionar el mismo archivo otra vez
+        fileInput.value = '';
+        fileInput.click();
+    });
 }
 
 let faceModel = null;
@@ -1618,6 +1643,9 @@ async function procesarFoto(file, previewEl) {
 
             document.getElementById("dropAreaFoto").style.display = "flex";
             previewEl.style.display = "none";
+            // Resetear el file input para permitir volver a intentar (incluso con el mismo archivo)
+            const fileEl = document.getElementById("fileFoto");
+            if (fileEl) fileEl.value = '';
             return;
         }
 
@@ -1649,6 +1677,9 @@ async function procesarFoto(file, previewEl) {
 
             document.getElementById("dropAreaFoto").style.display = "flex";
             previewEl.style.display = "none";
+            // Resetear el file input para permitir volver a intentar
+            const fileEl = document.getElementById("fileFoto");
+            if (fileEl) fileEl.value = '';
             return;
         }
 
@@ -1665,6 +1696,9 @@ async function procesarFoto(file, previewEl) {
 
             document.getElementById("dropAreaFoto").style.display = "flex";
             previewEl.style.display = "none";
+            // Resetear el file input para permitir volver a intentar
+            const fileEl = document.getElementById("fileFoto");
+            if (fileEl) fileEl.value = '';
             return;
         }
 
@@ -1695,6 +1729,9 @@ async function procesarFoto(file, previewEl) {
         document.getElementById("dropAreaFoto").style.display = "none";
 
         window.fotoRecortada = await compressImage(finalFoto, 100 * 1024);
+        // Resetear el input para que seleccionar la misma foto dispare 'change' de nuevo
+        const fileEl = document.getElementById("fileFoto");
+        if (fileEl) fileEl.value = '';
     };
 }
 
