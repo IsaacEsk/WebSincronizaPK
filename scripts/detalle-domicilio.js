@@ -569,7 +569,7 @@ function abrirDetalleTrabajador(idTrabajador) {
                     </div>
                     <div class="campo">
                         <label>N° TAG</label>
-                        <input type="text" value="${trabajador.passw || '  '}" readonly id="inputTag">
+                        <input type="number" value="${trabajador.passw || 0}" readonly id="inputTag">
                     </div>
                     <div class="campo">
                         <label>Fecha Alta</label>
@@ -1245,7 +1245,7 @@ function abrirNuevoTrabajador() {
                     </div>
                     <div class="campo">
                         <label>N° TAG</label>
-                        <input type="text" id="inputTag" value="0">
+                        <input type="number" id="inputTag" value="0" min="0" max="16777215">
                     </div>
                     <div class="campo">
                         <label>Fecha Alta</label>
@@ -1543,11 +1543,12 @@ async function loadFaceModel() {
 }
 
 
-async function compressImage(base64, maxSizeBytes = 100 * 1024) {
+async function compressImage(base64, maxSizeBytes = 50 * 1024) {
     const blob = await (await fetch(base64)).blob();
     
-    let quality = 0.9;
+    let quality = 0.85;
     let compressedBase64 = base64;
+    let scale = 1;
 
     while (true) {
         const compressedBlob = await new Promise(resolve => {
@@ -1555,9 +1556,12 @@ async function compressImage(base64, maxSizeBytes = 100 * 1024) {
             img.onload = () => {
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+                
+                // 🔥 Reducir dimensiones si es necesario
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
 
                 canvas.toBlob(
                     resolve,
@@ -1568,15 +1572,24 @@ async function compressImage(base64, maxSizeBytes = 100 * 1024) {
             img.src = base64;
         });
 
-        if (compressedBlob.size <= maxSizeBytes || quality < 0.2) {
+        //console.log(`📸 Intento: quality=${quality.toFixed(2)}, scale=${scale.toFixed(2)}, size=${(compressedBlob.size / 1024).toFixed(1)}KB`);
+
+        if (compressedBlob.size <= maxSizeBytes || (quality < 0.3 && scale < 0.5)) {
             // convertir a base64
             const reader = new FileReader();
             reader.readAsDataURL(compressedBlob);
             await new Promise(res => reader.onloadend = res);
+            //console.log(`✅ Compresión exitosa: ${(compressedBlob.size / 1024).toFixed(1)}KB`);
             return reader.result;
         }
 
-        quality -= 0.1; // ir bajando la calidad
+        // Bajar calidad primero
+        if (quality > 0.3) {
+            quality -= 0.08;
+        } else {
+            // Si la calidad está muy baja, reducir dimensiones
+            scale *= 0.9;
+        }
     }
 }
 
@@ -1598,11 +1611,29 @@ async function mandarFotoAlBackend() {
             body: JSON.stringify({ foto: base64 })
         });
 
+        // 🔥 VERIFICAR si la respuesta es OK ANTES de parsear JSON
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ Error HTTP ${response.status}:`, errorText.substring(0, 500));
+            Swal.showValidationMessage(`⚠️ Error del servidor (${response.status}). Intenta con otra foto.`);
+            return null;
+        }
+
+        // 🔥 Verificar que la respuesta es JSON válido
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const responseText = await response.text();
+            console.error("❌ Respuesta no es JSON:", responseText.substring(0, 500));
+            Swal.showValidationMessage("⚠️ El servidor devolvió una respuesta inválida. Intenta de nuevo.");
+            return null;
+        }
+
         const data = await response.json();
         //console.log("📥 Respuesta backend foto:", data);
 
         if (!data.success) {
             console.error("❌ Error backend:", data.error);
+            Swal.showValidationMessage(`⚠️ ${data.error || "Error al subir la foto"}`);
             return null;
         }
 
@@ -1611,6 +1642,7 @@ async function mandarFotoAlBackend() {
 
         if (!idFoto) {
             console.error("❌ No se encontró id_foto en la respuesta");
+            Swal.showValidationMessage("⚠️ No se pudo procesar la foto en el servidor.");
             return null;
         }
 
@@ -1619,6 +1651,7 @@ async function mandarFotoAlBackend() {
 
     } catch (err) {
         console.error("❌ Error mandando foto:", err);
+        Swal.showValidationMessage(`⚠️ Error de conexión: ${err.message}`);
         return null;
     }
 }
