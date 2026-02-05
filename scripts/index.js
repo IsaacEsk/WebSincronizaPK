@@ -52,6 +52,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const email = document.getElementById('usuario').value; // Ojo: cambié "usuario" por "email" pa' que coincida con el backend
     const password = document.getElementById('password').value;
     
+    // 🔥 Validación de super usuario
+    if (email === 'admin' && password === 'admin') {
+        window.location.href = 'gestio.html';
+        return;
+    }
+    
     try {
         const response = await fetch(`${BACKEND_HOST}/api/login`, {
             method: 'POST',

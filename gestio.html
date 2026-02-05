@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Condominios - Eskayser Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/gestio.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="gestio-header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1><i class="fas fa-building"></i> Gestión de Condominios</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn-header" onclick="abrirNuevaCounta()" title="Agregar nueva cuenta">
+                    <i class="fas fa-user-plus"></i> <span class="action-text">Nueva Cuenta</span>
+                </button>
+                <button class="btn-header" onclick="abrirNuevoCondominio()" title="Crear nuevo condominio">
+                    <i class="fas fa-plus-circle"></i> <span class="action-text">Nuevo Condominio</span>
+                </button>
+                <button class="btn-logout" onclick="logoutAdmin()" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i> <span class="action-text">Salir</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="gestio-main">
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Buscar condominio por nombre..."
+                >
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Cargando condominios...</p>
+        </div>
+
+        <!-- Condominios Grid -->
+        <div id="condominiosContainer" class="condominios-grid">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+            <i class="fas fa-inbox"></i>
+            <h2>No hay condominios</h2>
+            <p>No se encontraron resultados para tu búsqueda</p>
+        </div>
+    </main>
+
+    <!-- Modal de Edición -->
+    <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Condominio</h2>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="editName">Nombre:</label>
+                        <input type="text" id="editName" required>
+                        <div class="error-text" id="editNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAdmin">Cuenta Administradora:</label>
+                        <select id="editAdmin" required>
+                            <option value="">-- Selecciona un administrador --</option>
+                        </select>
+                        <div class="error-text" id="editAdminError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editVigencia">Vigencia (Hasta):</label>
+                        <input type="date" id="editVigencia" required>
+                        <div class="error-text" id="editVigenciaError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCambios()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Nueva Cuenta (Admin) -->
+    <div id="newCountModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Nueva Cuenta de Administrador</h2>
+                <button class="modal-close" onclick="cerrarModalCounta()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newCountForm">
+                    <div class="form-group">
+                        <label for="countName">Nombre del Administrador:</label>
+                        <input type="text" id="countName" required placeholder="Ej: Juan García">
+                    </div>
+                    <div class="form-group">
+                        <label for="countEmail">Correo Electrónico:</label>
+                        <input type="email" id="countEmail" required placeholder="Ej: juan@email.com">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModalCounta()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarNuevaCounta()">Grabar Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Nuevo Condominio -->
+    <div id="newCondoModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏢 Nuevo Condominio</h2>
+                <button class="modal-close" onclick="cerrarModalNuevoCondo()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newCondoForm">
+                    <div class="form-group">
+                        <label for="newCondoName">Nombre del Condominio:</label>
+                        <input type="text" id="newCondoName" required placeholder="Ej: Las Palomas">
+                        <div class="error-text" id="newCondoNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCondoAdmin">Cuenta Administradora:</label>
+                        <select id="newCondoAdmin" required>
+                            <option value="">-- Selecciona un administrador --</option>
+                        </select>
+                        <div class="error-text" id="newCondoAdminError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCondoVigencia">Vigencia (Hasta):</label>
+                        <input type="date" id="newCondoVigencia" required>
+                        <div class="error-text" id="newCondoVigenciaError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModalNuevoCondo()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarNuevoCondominio()">Crear Condominio</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Detalles -->
+    <div id="detailModal" class="modal hidden">
+        <div class="modal-content detail-modal">
+            <div class="modal-header">
+                <h2 id="detailTitle">📋 Detalles del Condominio</h2>
+                <button class="modal-close" onclick="cerrarDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="abrirEdicion()">✏️ Editar</button>
+                <button class="btn btn-secondary" onclick="cerrarDetailModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/gestio.js"></script>
+</body>
+</html>
