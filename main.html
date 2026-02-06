@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
+    <!-- 🔐 Validación de autenticación -->
+    <script>
+        const userData = sessionStorage.getItem('userData');
+        if (!userData) {
+            window.location.href = 'index.html';
+        }
+    </script>
 
     <div class="page-title">
         <h1>CONDOMINIO PROBANDO</h1>

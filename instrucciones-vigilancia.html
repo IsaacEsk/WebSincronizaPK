@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="styles/instrucciones-vigilancia.css">
 </head>
 <body>
+    <!-- 🔐 Validación de autenticación -->
+    <script>
+        const userData = sessionStorage.getItem('userData');
+        if (!userData) {
+            window.location.href = 'index.html';
+        }
+    </script>
+
     <div class="container">
         <!-- Header -->
         <div class="header">

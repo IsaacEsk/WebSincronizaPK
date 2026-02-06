@@ -473,6 +473,7 @@ function mostrarVacio() {
 
 function logoutAdmin() {
     if (confirm('¿Cerrar sesión?')) {
+        sessionStorage.removeItem('isAdmin');
         window.location.href = 'index.html';
     }
 }
