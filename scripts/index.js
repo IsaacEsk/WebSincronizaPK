@@ -53,7 +53,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
     
     // 🔥 Validación de super usuario
-    if (email === 'admin' && password === 'admin') {
+    if (email === 'admin' && password === 'eska1serPK') {
         sessionStorage.setItem('isAdmin', 'true');
         window.location.href = 'gestio.html';
         return;
