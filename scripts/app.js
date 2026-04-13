@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const condo = JSON.parse(sessionStorage.getItem('condominioSeleccionado'));
-    //console.log("Datos del condominio:", condo);
+    console.log("Datos del condominio:", condo);
 
     // Formatear la fecha de expiración (de '2025-12-06T06:00:00.000Z' a '06/12/2025')
     const formatExpiryDate = (dateString) => {
@@ -500,6 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const expiryElement = document.querySelector('.expiry-date');
         if (expiryElement && condo.deleted_at) {
             expiryElement.textContent = `Vigencia hasta: ${formatExpiryDate(condo.deleted_at)}`;
+        }
+
+        // Mostrar el código KNOVO en el modal
+        const knovoCodeElement = document.getElementById('knovoCode');
+        if (knovoCodeElement) {
+            knovoCodeElement.textContent = condo.knovo_code
+                ? `Código Condominio: ${condo.knovo_code}`
+                : 'Código Condominio no disponible';
         }
 
         // (Si necesitas actualizar otros elementos, los agregamos aquí)
