@@ -302,13 +302,25 @@ document.body.addEventListener('click', (e) => {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            
+            const newPassword = result?.value?.newPassword;
+            const userId = usuarioGuardado?.id;
+
+            if (!userId) {
+                Swal.fire('Error', 'No se encontró el usuario. Vuelve a iniciar sesión.', 'error');
+                return;
+            }
+
+            if (!newPassword) {
+                Swal.fire('Error', 'No se obtuvo la nueva contraseña.', 'error');
+                return;
+            }
+
             fetch(`${BACKEND_HOST}/api/change-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    id: usuarioGuardado.id,
-                    newPassword: result.value.newPassword // 🔥 Corregido aquí
+                    id: userId,
+                    newPassword
                 })
             })
             .then(response => response.json())

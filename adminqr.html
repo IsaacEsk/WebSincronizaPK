@@ -29,6 +29,47 @@
             <div class="card-skeleton"></div> <!-- Placeholder mientras carga -->
         </div>
     </div>
+
+    <!-- Modal para seleccionar casa al aceptar un pendiente -->
+    <div id="casa-select-modal" class="modal hidden">
+        <div class="modal-content modal-casa-select">
+            <div class="modal-header">
+                <h2>Seleccione una casa</h2>
+                <button id="modal-close-btn" class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search">
+                    <input id="modal-casa-search" type="text" placeholder="Buscar direccion..." autocomplete="off">
+                </div>
+                <div id="modal-casa-list" class="casa-list">
+                    <!-- Casas cargadas dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel-btn" class="btn btn-secondary" type="button">Cancelar</button>
+                <button id="modal-aceptar-btn" class="btn btn-primary" type="button" disabled>Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito con código de validación -->
+    <div id="success-modal" class="modal hidden">
+        <div class="modal-content modal-success">
+            <div class="modal-header">
+                <h2>Código de validación</h2>
+                <button id="success-close-btn" class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body success-body">
+                <p class="success-text">El código de validación para el usuario aceptado es:</p>
+                <div id="success-code-text" class="success-code">---</div>
+                <p class="success-note">Copia este código y entrégalo al usuario.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="success-ok-btn" class="btn btn-primary" type="button">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="scripts/config.js"></script>
     <script src="scripts/adminqr.js"></script>
 </body>

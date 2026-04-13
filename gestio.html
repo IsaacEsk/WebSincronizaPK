@@ -182,6 +182,23 @@
         </div>
     </div>
 
+    <!-- Modal de Bienvenida -->
+    <div id="credentialsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏠 Bienvenida - Credenciales de Acceso</h2>
+                <button class="modal-close" onclick="cerrarModalCredenciales()">&times;</button>
+            </div>
+            <div class="modal-body" id="credentialsContent">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="copiarAlPortapapeles(this)">📋 Copiar Mensaje</button>
+                <button class="btn btn-secondary" onclick="cerrarModalCredenciales()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="scripts/config.js"></script>
     <script src="scripts/gestio.js"></script>
 </body>

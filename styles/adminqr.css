@@ -122,3 +122,160 @@ body {
     }
 }
 
+/* Modal Selección de casa */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    z-index: 9999;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    width: min(680px, 100%);
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-casa-select .modal-header,
+.modal-casa-select .modal-footer {
+    padding: 18px 20px;
+    background: #f7f9fb;
+}
+
+.modal-success .modal-header,
+.modal-success .modal-footer {
+    padding: 18px 20px;
+    background: #f7f9fb;
+}
+
+.success-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.success-text {
+    font-size: 16px;
+    color: #34495e;
+    margin-bottom: 18px;
+}
+
+.success-code {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: #eff6ff;
+    border: 1px dashed #2f80ed;
+    border-radius: 16px;
+    padding: 24px 18px;
+    color: #1d4db0;
+    word-break: break-word;
+}
+
+.success-note {
+    margin-top: 16px;
+    color: #5e6f86;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #333;
+}
+
+.modal-body {
+    padding: 0 20px 20px;
+    overflow: auto;
+}
+
+.modal-search {
+    margin-bottom: 14px;
+}
+
+.modal-search input {
+    width: 100%;
+    border: 1px solid #d7dbe0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+}
+
+.casa-list {
+    display: grid;
+    gap: 10px;
+}
+
+.casa-item {
+    padding: 14px;
+    border: 1px solid #d7dbe0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    color: #2c3e50;
+}
+
+.casa-item:hover {
+    background-color: #f0f7ff;
+}
+
+.casa-item.selected {
+    background-color: #e8f5ff;
+    border-color: #3d8bfd;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #2f80ed;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #f1f4f8;
+    color: #34495e;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

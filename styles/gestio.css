@@ -320,6 +320,15 @@ html, body {
     background: var(--primary-color);
 }
 
+.btn-card.bienvenida {
+    background: #1db954;
+    color: white;
+}
+
+.btn-card.bienvenida:hover {
+    background: #1aa34a;
+}
+
 /* ========== EMPTY STATE ========== */
 .empty-state {
     text-align: center;

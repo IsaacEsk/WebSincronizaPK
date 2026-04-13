@@ -159,6 +159,9 @@ function crearTarjetaCondominio(condo) {
             <button class="btn-card edit" onclick="abrirEdicionDirecta(${condo.id})">
                 <i class="fas fa-edit"></i> Editar
             </button>
+            <button class="btn-card bienvenida" onclick="abrirModalCredenciales(${condo.id})">
+                <i class="fas fa-home"></i> Bienvenida
+            </button>
         </div>
     `;
     
@@ -234,6 +237,86 @@ function verDetalles(condoId) {
 function cerrarDetailModal() {
     detailModal.classList.add('hidden');
     condominioSeleccionado = null;
+}
+
+// ========== CREDENCIALES MODAL ========== //
+function abrirModalCredenciales(condoId) {
+    const condo = condominios.find(c => c.id === condoId);
+    if (!condo) return;
+
+    const credentialsContent = document.getElementById('credentialsContent');
+    
+    const mensaje = `
+        <div style="text-align: left; line-height: 1.8;">
+            <p style="margin-bottom: 15px;">Estimado cliente,</p>
+            
+            <p>Por medio de este mensaje le compartimos sus credenciales de acceso para la plataforma administrativa.</p>
+            
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>URL de acceso:</strong> https://admin.eskayser.com.mx/</p>
+                <p><strong>Usuario:</strong> ${condo.admin_email || 'N/A'}</p>
+                <p><strong>Contraseña:</strong> admin123</p>
+            </div>
+            
+            <p><strong>Nota importante:</strong> Esta contraseña es provisional. Le recomendamos encarecidamente cambiarla tras su primer ingreso. Dentro del sistema, encontrará un botón denominado "Cambiar contraseña" una vez que haya iniciado sesión correctamente.</p>
+            
+            <h3 style="margin-top: 25px; margin-bottom: 15px;">Funcionalidades de la plataforma</h3>
+            
+            <p><strong>Acceso Inicial:</strong> Al ingresar, verá un listado de los condominios que administra. En su caso, aparecerá únicamente <strong>${condo.name}</strong>.</p>
+            
+            <p><strong>Panel de Administración:</strong> Al seleccionar el condominio, accederá al panel de control. Su interfaz es similar a la del software PuertaK y actualmente permite las siguientes funciones:</p>
+            
+            <ul style="margin-left: 20px;">
+                <li>Gestión (altas, bajas y modificaciones) de residentes y trabajadores.</li>
+                <li>Gestión (altas, bajas y edición) de casas o unidades habitacionales.</li>
+                <li>Consulta de reportes de:
+                    <ul style="margin-top: 10px;">
+                        <li>Visitantes vehiculares.</li>
+                        <li>Visitantes peatonales.</li>
+                        <li>Trabajadores.</li>
+                        <li>Residentes.</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p style="margin-top: 20px;">La plataforma está optimizada para su uso en escritorio (computadora de escritorio o laptop). Próximamente se encontrará disponible una versión para dispositivos móviles. Es importante mencionar que seguiremos incorporando nuevas funciones de manera continua.</p>
+            
+            <p>La interfaz ha sido diseñada para ser intuitiva y cuenta con instrucciones integradas que facilitan su uso.</p>
+            
+            <p style="margin-top: 20px;">Quedamos a su disposición para cualquier duda o asistencia que pueda requerir.</p>
+        </div>
+    `;
+    
+    credentialsContent.innerHTML = mensaje;
+    document.getElementById('credentialsModal').classList.remove('hidden');
+}
+
+function cerrarModalCredenciales() {
+    document.getElementById('credentialsModal').classList.add('hidden');
+}
+
+// ========== COPIAR MENSAJE ========== //
+function copiarAlPortapapeles(btn) {
+    const credentialsContent = document.getElementById('credentialsContent');
+    
+    // Extraer solo el texto del contenido (sin HTML)
+    let texto = credentialsContent.innerText;
+    
+    // Copiar al portapapeles
+    navigator.clipboard.writeText(texto).then(() => {
+        // Mostrar confirmación visual
+        const textOriginal = btn.textContent;
+        btn.textContent = '✅ Copiado!';
+        btn.style.background = '#4caf50';
+        
+        setTimeout(() => {
+            btn.textContent = textOriginal;
+            btn.style.background = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+        alert('❌ No se pudo copiar el mensaje');
+    });
 }
 
 // ========== EDICIÓN MODAL ========== //
