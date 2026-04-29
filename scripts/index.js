@@ -17,10 +17,10 @@ const condoString = sessionStorage.getItem('condominioSeleccionado');
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // console.log("Sie entre a ver si muestro la presala ");
-    // console.log(condominiosGuardados);
-    // console.log(usuarioGuardado);
-    // console.log(condominioSeleccionado);
+    console.log("Sie entre a ver si muestro la presala ");
+    console.log(condominiosGuardados);
+    console.log(usuarioGuardado);
+    console.log(condominioSeleccionado);
 
 
     if(usuarioGuardado)
@@ -303,7 +303,9 @@ document.body.addEventListener('click', (e) => {
     }).then((result) => {
         if (result.isConfirmed) {
             const newPassword = result?.value?.newPassword;
-            const userId = usuarioGuardado?.id;
+            // 🔧 FIX: Leer userData en el momento del clic, no al inicio
+            const userDataActual = JSON.parse(sessionStorage.getItem('userData'));
+            const userId = userDataActual?.id;
 
             if (!userId) {
                 Swal.fire('Error', 'No se encontró el usuario. Vuelve a iniciar sesión.', 'error');
