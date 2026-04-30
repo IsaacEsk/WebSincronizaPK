@@ -17,10 +17,10 @@ const condoString = sessionStorage.getItem('condominioSeleccionado');
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Sie entre a ver si muestro la presala ");
-    console.log(condominiosGuardados);
-    console.log(usuarioGuardado);
-    console.log(condominioSeleccionado);
+    // console.log("Sie entre a ver si muestro la presala ");
+    // console.log(condominiosGuardados);
+    // console.log(usuarioGuardado);
+    // console.log(condominioSeleccionado);
 
 
     if(usuarioGuardado)

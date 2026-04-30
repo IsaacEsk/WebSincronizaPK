@@ -54,13 +54,19 @@
                 </div>
                 <div class="info-item">
                     <label for="telefono">TELÉFONO</label>
+                   <div style="display: flex; gap: 8px; align-items: center;">
                    <input 
                     type="tel" 
                     id="telefono" 
                     pattern="[0-9]{3}-[0-9]{6,7}" 
                     placeholder="Ej. 555-1234567"
                     required
-                >
+                    style="flex: 1;"
+                   >
+                   <button type="button" id="btn-telefonos-ocultos" class="btn btn-info" title="Ver teléfonos ocultos" style="padding: 8px 12px; font-size: 14px;">
+                       📞
+                   </button>
+                   </div>
                 </div>
                 <div class="info-item">
                     <label for="categoria">CATEGORÍA</label>

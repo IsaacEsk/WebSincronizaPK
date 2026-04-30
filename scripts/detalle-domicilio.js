@@ -272,6 +272,16 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
             // Checkboxes
             document.getElementById('permiso-residentes').checked = casa.picol === 1;
             document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+
+            // 📞 Guardar teléfonos ocultos (solo los que vienen del backend)
+            telefonosOcultos = {};
+            if (casa.tel1 !== undefined) telefonosOcultos.tel1 = casa.tel1 || '';
+            if (casa.tel2 !== undefined) telefonosOcultos.tel2 = casa.tel2 || '';
+            if (casa.tel3 !== undefined) telefonosOcultos.tel3 = casa.tel3 || '';
+            if (casa.tel4 !== undefined) telefonosOcultos.tel4 = casa.tel4 || '';
+            
+            // Actualizar estado del botón según si hay teléfonos ocultos
+            actualizarBotonTelefonosOcultos();
         } else {
             throw new Error('Domicilio no encontrado');
         }
@@ -396,6 +406,14 @@ async function cargarCasetas() {
 
 // Variable global (asegúrate de que esté declarada antes)
 let soportaFoto = false;
+
+// ========== TELÉFONOS OCULTOS ========== //
+let telefonosOcultos = {
+    tel1: '',
+    tel2: '',
+    tel3: '',
+    tel4: ''
+};
 
 
 // ========== FUNCIONES AUXILIARES ========== //
@@ -542,6 +560,202 @@ function mostrarLoader(mostrar) {
     }
 }
 
+// ========== TELÉFONOS OCULTOS ========== //
+function actualizarBotonTelefonosOcultos() {
+    const btn = document.getElementById('btn-telefonos-ocultos');
+    if (!btn) return;
+
+    // Verificar si hay al menos un teléfono con valor en las claves que existen
+    const hayTelefonos = Object.values(telefonosOcultos).some(val => val && val.trim() !== '');
+
+    if (hayTelefonos) {
+        btn.classList.remove('btn-info');
+        btn.classList.add('btn-success');
+        btn.title = 'Ver teléfonos ocultos';
+    } else {
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-info');
+        btn.title = 'No hay teléfonos ocultos disponibles';
+    }
+}
+
+function mostrarTelefonosOcultos() {
+    // Obtener solo los campos de teléfono que existen en el objeto
+    const telefonosArray = Object.keys(telefonosOcultos)
+        .filter(key => key.startsWith('tel')) // Solo claves que empiezan con 'tel'
+        .map(key => ({
+            key: key,
+            numero: telefonosOcultos[key] || '',
+            label: key.replace('tel', 'Teléfono ')
+        }));
+
+    // Si no hay ningún teléfono, mostrar mensaje
+    if (telefonosArray.length === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: '📞 Teléfonos Ocultos',
+            html: `
+                <div style="text-align: center; padding: 20px;">
+                    <p style="font-size: 16px; color: #666;">
+                        El sistema actual no cuenta con el servicio de llamada oculta.
+Se recomienda contactar a su proveedor para contratar dicha función si se requiere.
+                    </p>
+                </div>
+            `,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+
+    const htmlTelefonos = telefonosArray.map((tel, index) => `
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        ">
+            <div style="flex: 1;">
+                <span style="font-weight: 600; color: #495057;">${tel.label}</span>
+            </div>
+            <input 
+                type="tel" 
+                id="inputTel${tel.key}" 
+                value="${tel.numero}"
+                placeholder="10 dígitos"
+                maxlength="10"
+                inputmode="numeric"
+                onkeypress="return soloNumeros(event)"
+                style="
+                    width: 150px;
+                    padding: 8px 12px;
+                    border: 1px solid #ced4da;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    text-align: center;
+                "
+            >
+        </div>
+    `).join('');
+
+    Swal.fire({
+        title: '📞 Teléfonos Ocultos',
+        html: `
+            <div style="text-align: left; padding: 10px;">
+                <p style="font-size: 13px; color: #6c757d; margin-bottom: 15px;">
+                    Ingresa números de 10 dígitos para cada teléfono.
+                </p>
+                ${htmlTelefonos}
+            </div>
+        `,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cerrar',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        preConfirm: async () => {
+            // Validar solo los campos que existen
+            const nuevosTelefonos = [];
+            let hayError = false;
+
+            for (const tel of telefonosArray) {
+                const input = document.getElementById(`inputTel${tel.key}`);
+                const valor = input.value.trim();
+
+                if (valor === '') {
+                    nuevosTelefonos.push({ key: tel.key, valor: '' });
+                } else {
+                    if (!/^\d{10}$/.test(valor)) {
+                        Swal.showValidationMessage(`❌ ${tel.label}: Debe tener exactamente 10 dígitos numéricos`);
+                        hayError = true;
+                        return false;
+                    }
+                    nuevosTelefonos.push({ key: tel.key, valor: valor });
+                }
+            }
+
+            if (hayError) return false;
+
+            // Mostrar loader mientras se guarda en el backend
+            Swal.fire({
+                title: 'Guardando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // Construir el objeto para el backend
+                const datosTelefonos = {
+                    idcasa: idCasacache
+                };
+                
+                // Agregar solo los teléfonos que tienen valor
+                nuevosTelefonos.forEach(tel => {
+                    datosTelefonos[tel.key] = tel.valor;
+                });
+
+                // Llamar al backend para actualizar teléfonos
+                const response = await fetch(`${BACKEND_HOST}/api/actualizar/telefonos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datosTelefonos)
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Error al guardar teléfonos');
+                }
+
+                // Si el backend respondió bien, actualizar la variable global
+                nuevosTelefonos.forEach(tel => {
+                    telefonosOcultos[tel.key] = tel.valor;
+                });
+
+                // Actualizar el botón visual
+                actualizarBotonTelefonosOcultos();
+
+                return {
+                    telefonos: telefonosOcultos
+                };
+
+            } catch (error) {
+                console.error('Error al guardar teléfonos:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'No se pudieron guardar los teléfonos. Intenta de nuevo.'
+                });
+                return false;
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Guardado!',
+                text: 'Los teléfonos ocultos se han actualizado',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+// Asignar el event listener al botón cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    const btnTelefonos = document.getElementById('btn-telefonos-ocultos');
+    if (btnTelefonos) {
+        btnTelefonos.addEventListener('click', mostrarTelefonosOcultos);
+    }
+});
+
 let idCasacache;
 let idCasetacache;
 
@@ -635,6 +849,20 @@ function normalizarTexto(texto) {
         .replace(/[\u0300-\u036f]/g, "") // Elimina acentos
         .replace(/[^a-zA-Z0-9\s]/g, "") // Solo letras, números y espacios
         .toUpperCase();
+}
+
+// Solo permite números en campos de texto
+function soloNumeros(e) {
+    const charCode = (e.which) ? e.which : e.keyCode;
+    // Permitir: teclas de control (backspace, delete, flechas)
+    if (charCode == 8 || charCode == 46 || charCode == 37 || charCode == 39) {
+        return true;
+    }
+    // Permitir solo números (0-9)
+    if (charCode < 48 || charCode > 57) {
+        return false;
+    }
+    return true;
 }
 
 // Normaliza placas: solo letras/números en mayúsculas
