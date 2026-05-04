@@ -87,6 +87,7 @@ async function cargarCondominios() {
         
         if (data.success && data.data) {
             condominios = data.data;
+            //console.log(condominios);
             renderizarCondominios(condominios);
         } else {
             throw new Error('Respuesta inválida del servidor');
@@ -226,6 +227,10 @@ function verDetalles(condoId) {
             <div class="detail-value"><code>${condo.activation}</code></div>
         </div>
         <div class="detail-row">
+            <div class="detail-label">Knovo Code</div>
+            <div class="detail-value"><code>${condo.knovo_code || ''}</code></div>
+        </div>
+        <div class="detail-row">
             <div class="detail-label">Creado</div>
             <div class="detail-value">${formatearFecha(condo.created_at)}</div>
         </div>
@@ -347,6 +352,7 @@ function abrirEdicion() {
     // Llenar formulario con datos del condominio
     document.getElementById('editName').value = condo.name;
     document.getElementById('editAdmin').value = condo.admin_user_id || '';
+    document.getElementById('editKnovoCode').value = condo.knovo_code || '';
     
     const fechaVigencia = new Date(condo.deleted_at);
     const fechaFormato = fechaVigencia.toISOString().split('T')[0];
@@ -374,10 +380,12 @@ async function guardarCambios() {
     
     const nombreEl = document.getElementById('editName');
     const adminEl = document.getElementById('editAdmin');
+    const knovoCodeEl = document.getElementById('editKnovoCode');
     const vigenciaEl = document.getElementById('editVigencia');
 
     const nombre = nombreEl.value.trim();
     const adminId = adminEl.value;
+    const knovoCode = knovoCodeEl.value.trim();
     const vigencia = vigenciaEl.value;
 
     // Limpiar errores previos
@@ -446,7 +454,8 @@ async function guardarCambios() {
         const payload = {
             name: nombre,
             deleted_at: new Date(vigencia).toISOString(),
-            idadmin: parseInt(adminId)
+            idadmin: parseInt(adminId),
+            knovo_code: knovoCode
         };
 
         const response = await fetch(`${BACKEND_HOST}/api/condominios/${condominioSeleccionado.id}`, {
@@ -470,6 +479,7 @@ async function guardarCambios() {
                     admin_user_id: updated.idadmin || parseInt(adminId),
                     admin_name: (cuentaSeleccionada && cuentaSeleccionada.nombre) || condominios[indice].admin_name,
                     admin_email: (cuentaSeleccionada && cuentaSeleccionada.email) || condominios[indice].admin_email,
+                    knovo_code: updated.knovo_code !== undefined ? updated.knovo_code : knovoCode,
                     isactive: updated.isactive !== undefined ? updated.isactive : condominios[indice].isactive
                 };
             }
