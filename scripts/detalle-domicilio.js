@@ -251,42 +251,7 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
 
         if (!result.success) throw new Error('Error general en el batch');
 
-        // 3️⃣ Procesar datos de la casa PRIMERO (si existe)
-        if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
-            const casa = result.data.domicilio.data[0];
-            
-            // Llenar campos principales
-            document.getElementById('direccion').value = casa.direccion || '  ';
-            document.getElementById('lote').value = casa.lote || '  ';
-            document.getElementById('restriccion').value = casa.restriccion || '  ';
-            document.getElementById('contrato').value = casa.contrato || '0';
-            document.getElementById('telefono').value = casa.tel || '';
-            
-            idCasetacache = casa.caseta;
-            document.getElementById('fecha-cuota').value = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
-            
-            // Seleccionar categoría y caseta (usando los nombres si existen)
-            document.getElementById('categoria').value = casa.categoria || '';
-            document.getElementById('caseta').value = casa.caseta || '';
-            
-            // Checkboxes
-            document.getElementById('permiso-residentes').checked = casa.picol === 1;
-            document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
-
-            // 📞 Guardar teléfonos ocultos (solo los que vienen del backend)
-            telefonosOcultos = {};
-            if (casa.tel1 !== undefined) telefonosOcultos.tel1 = casa.tel1 || '';
-            if (casa.tel2 !== undefined) telefonosOcultos.tel2 = casa.tel2 || '';
-            if (casa.tel3 !== undefined) telefonosOcultos.tel3 = casa.tel3 || '';
-            if (casa.tel4 !== undefined) telefonosOcultos.tel4 = casa.tel4 || '';
-            
-            // Actualizar estado del botón según si hay teléfonos ocultos
-            actualizarBotonTelefonosOcultos();
-        } else {
-            throw new Error('Domicilio no encontrado');
-        }
-
-        // 4️⃣ Procesar el resto de los datos (categorías, residentes, etc.)
+        // 3️⃣ Procesar el resto de los datos (categorías, residentes, etc.)
         Object.entries(result.data).forEach(([key, subResponse]) => {
             if (key === 'domicilio') return; // Ya lo procesamos
             
@@ -315,6 +280,55 @@ async function cargarTodoEnUnSoloFetch(idCasa) {
                     break;
             }
         });
+
+        // 4️⃣ Procesar datos de la casa DESPUÉS de cargar los combos
+        if (result.data.domicilio?.success && result.data.domicilio.data.length > 0) {
+            const casa = result.data.domicilio.data[0];
+            
+            // Llenar campos principales
+            document.getElementById('direccion').value = casa.direccion || '  ';
+            document.getElementById('lote').value = casa.lote || '  ';
+            document.getElementById('restriccion').value = casa.restriccion || '  ';
+            document.getElementById('contrato').value = casa.contrato || '0';
+            document.getElementById('telefono').value = casa.tel || '';
+            
+            idCasetacache = casa.caseta;
+            document.getElementById('fecha-cuota').value = casa.fechacuota ? casa.fechacuota.split('T')[0] : '2050-01-01';
+            
+            // Seleccionar categoría y caseta una vez que ya existen las opciones
+            const categoriaSelect = document.getElementById('categoria');
+            const casetaSelect = document.getElementById('caseta');
+            const categoriaValor = casa.categoria != null && casa.categoria !== '' ? String(casa.categoria) : '';
+            const casetaValor = casa.caseta != null && casa.caseta !== '' ? String(casa.caseta) : '';
+
+            if (categoriaValor && [...categoriaSelect.options].some(opt => opt.value === categoriaValor)) {
+                categoriaSelect.value = categoriaValor;
+            } else {
+                categoriaSelect.value = '';
+            }
+
+            if (casetaValor && [...casetaSelect.options].some(opt => opt.value === casetaValor)) {
+                casetaSelect.value = casetaValor;
+            } else {
+                casetaSelect.value = '';
+            }
+            
+            // Checkboxes
+            document.getElementById('permiso-residentes').checked = casa.picol === 1;
+            document.getElementById('permiso-trabajadores').checked = casa.pitra === 1;
+
+            // 📞 Guardar teléfonos ocultos (solo los que vienen del backend)
+            telefonosOcultos = {};
+            if (casa.tel1 !== undefined) telefonosOcultos.tel1 = casa.tel1 || '';
+            if (casa.tel2 !== undefined) telefonosOcultos.tel2 = casa.tel2 || '';
+            if (casa.tel3 !== undefined) telefonosOcultos.tel3 = casa.tel3 || '';
+            if (casa.tel4 !== undefined) telefonosOcultos.tel4 = casa.tel4 || '';
+            
+            // Actualizar estado del botón según si hay teléfonos ocultos
+            actualizarBotonTelefonosOcultos();
+        } else {
+            throw new Error('Domicilio no encontrado');
+        }
 
         // 5️⃣ Procesar la verificación de idfoto3
         if (result.data.idfoto3?.success) {
@@ -419,20 +433,29 @@ let telefonosOcultos = {
 // ========== FUNCIONES AUXILIARES ========== //
 function llenarComboCategorias(data) {
     const select = document.getElementById('categoria');
-    select.innerHTML = data.map(cat => 
-        `<option value="${cat.idconcepto}">${cat.concepto.trim()}</option>`
-    ).join('');
+    if (!select) return;
+
+    select.innerHTML = `
+        <option value="">Seleccione categoría</option>
+        ${data.map(cat => 
+            `<option value="${cat.idconcepto}">${(cat.concepto || '').trim()}</option>`
+        ).join('')}
+    `;
 }
 
 function llenarComboCasetas(data) {
     const select = document.getElementById('caseta');
+    if (!select) return;
+
     select.innerHTML = data.map(caseta => 
-        `<option value="${caseta.iddispositivo}">${caseta.nombre.trim()}</option>`
+        `<option value="${caseta.iddispositivo}">${(caseta.nombre || '').trim()}</option>`
     ).join('');
 }
 
 function llenarTablaResidentes(data) {
     const tbody = document.getElementById('residentes-list');
+    if (!tbody) return;
+
     tbody.innerHTML = data.map(residente => `
         <tr data-id="${residente.idresidente}" data-tipo="residente">
             <td>${residente.nombre?.trim() || '  '}</td>
