@@ -649,8 +649,8 @@ Se recomienda contactar a su proveedor para contratar dicha función si se requi
                 type="tel" 
                 id="inputTel${tel.key}" 
                 value="${tel.numero}"
-                placeholder="10 dígitos"
-                maxlength="10"
+                placeholder="max 15 dígitos"
+                maxlength="15"
                 inputmode="numeric"
                 onkeypress="return soloNumeros(event)"
                 style="
@@ -692,8 +692,8 @@ Se recomienda contactar a su proveedor para contratar dicha función si se requi
                 if (valor === '') {
                     nuevosTelefonos.push({ key: tel.key, valor: '' });
                 } else {
-                    if (!/^\d{10}$/.test(valor)) {
-                        Swal.showValidationMessage(`❌ ${tel.label}: Debe tener exactamente 10 dígitos numéricos`);
+                    if (valor.length < 10) {
+                        Swal.showValidationMessage(`❌ ${tel.label}: Debe tener al menos 10 dígitos numéricos`);
                         hayError = true;
                         return false;
                     }
