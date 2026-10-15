@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Importar Excel · Guardian Virtual</title>
+    <link rel="stylesheet" href="styles/importaexcel.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="virtual-header">
+        <div class="header-left">
+            <span class="logo">🛡️ Guardian Virtual</span>
+            <span class="badge-virtual">Importar</span>
+        </div>
+        <div class="header-right">
+            <span class="condo-name" id="condoName">Cargando...</span>
+            <button class="btn-back" onclick="window.location.href='virtualmain.html'">⬅</button>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="import-main">
+
+        <div class="import-card">
+
+            <div class="import-header">
+                <h1 class="import-title">📥 Importar Casas desde Excel</h1>
+                <p class="import-subtitle">
+                    Sube un archivo <strong>.xlsx</strong> con el listado de casas que quieres agregar al condominio.
+                </p>
+            </div>
+
+            <!-- Zona de arrastrar y soltar -->
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" hidden />
+                
+                <div class="drop-zone-content">
+                    <div class="drop-icon">📄</div>
+                    <p class="drop-text">
+                        Arrastra tu archivo aquí o
+                        <span class="drop-link">haz click para seleccionar</span>
+                    </p>
+                    <p class="drop-hint">Formatos permitidos: .xlsx, .xls, .csv (máx. 5MB)</p>
+                </div>
+            </div>
+
+            <!-- Archivo seleccionado -->
+            <div class="file-selected hidden" id="fileSelected">
+                <div class="file-info">
+                    <span class="file-icon">📊</span>
+                    <div class="file-details">
+                        <span class="file-name" id="fileName">archivo.xlsx</span>
+                        <span class="file-size" id="fileSize">0 KB</span>
+                    </div>
+                </div>
+                <button class="btn-remove-file" id="btnRemoveFile">✕</button>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="import-actions">
+                <button class="btn btn-secondary" id="btnCancel">Cancelar</button>
+                <button class="btn btn-primary" id="btnUpload" disabled>📥 Importar Casas</button>
+            </div>
+
+        </div>
+
+        <!-- ==================== EJEMPLO / GUÍA ==================== -->
+        <div class="import-guide">
+
+            <h2 class="guide-title">📋 ¿Cómo debe verse tu archivo?</h2>
+            <p class="guide-text">
+                Tu archivo debe tener las siguientes columnas. Puedes descargar la plantilla de ejemplo:
+            </p>
+
+            <div class="example-table">
+                <div class="example-header">
+                    <span>#</span>
+                    <span>Nombre de la Casa</span>
+                </div>
+                <div class="example-row">
+                    <span>1</span>
+                    <span>Casa 101</span>
+                </div>
+                <div class="example-row">
+                    <span>2</span>
+                    <span>Casa 102</span>
+                </div>
+                <div class="example-row">
+                    <span>3</span>
+                    <span>Casa 201</span>
+                </div>
+                <div class="example-row">
+                    <span>4</span>
+                    <span>Casa 202</span>
+                </div>
+            </div>
+
+            <div class="guide-actions">
+                <a href="assets/plantilla-casas.xlsx" class="btn btn-secondary" download>
+                    📥 Descargar plantilla de ejemplo
+                </a>
+            </div>
+
+            <div class="guide-note">
+                <span class="note-icon">💡</span>
+                <p>
+                    <strong>Consejo:</strong> Si alguna casa ya existe en el condominio, se ignorará automáticamente.
+                    Solo se agregarán las casas nuevas.
+                </p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ==================== SCRIPTS ==================== -->
+     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/importaexcel.js"></script>
+</body>
+</html>

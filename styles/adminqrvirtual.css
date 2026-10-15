@@ -1,0 +1,656 @@
+/* ====================================================
+   RESET + BASE
+   ==================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f7fa;
+    color: #1a1e2b;
+    min-height: 100vh;
+}
+
+/* ====================================================
+   HEADER (verde Knovo)
+   ==================================================== */
+.virtual-header {
+    background: rgb(6, 132, 78);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(6, 132, 78, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.badge-virtual {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.condo-name {
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 16px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-back {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* ====================================================
+   MAIN + TOOLBAR
+   ==================================================== */
+.adminqr-main {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+}
+
+.adminqr-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    background: #fff;
+    padding: 16px 24px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(6, 132, 78, 0.08);
+}
+
+.adminqr-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0b1a33;
+    letter-spacing: -0.3px;
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f0f3f8;
+    border-radius: 40px;
+    padding: 0 16px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 380px;
+    transition: 0.2s;
+}
+
+.search-wrapper:focus-within {
+    background: #e8edf5;
+    box-shadow: 0 0 0 3px rgba(6, 132, 78, 0.15);
+}
+
+.search-icon {
+    font-size: 1rem;
+    opacity: 0.5;
+    margin-right: 10px;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    color: #1a1e2b;
+}
+
+.search-input::placeholder {
+    color: #8a94a6;
+}
+
+/* ====================================================
+   GRID DE CARDS
+   ==================================================== */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* ====================================================
+   CARD
+   ==================================================== */
+.card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(6, 132, 78, 0.06);
+    transition: 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(6, 132, 78, 0.1);
+    border-color: rgba(6, 132, 78, 0.15);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.card-emoji {
+    font-size: 1.6rem;
+    line-height: 1;
+    width: 42px;
+    height: 42px;
+    background: rgba(6, 132, 78, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.card-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #0b1a33;
+    word-break: break-word;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex: 1;
+}
+
+.card-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #4a5268;
+}
+
+.card-info-row .label {
+    color: #8a94a6;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.card-info-row .value {
+    font-weight: 500;
+    color: #1a1e2b;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    justify-content: flex-end;
+    border-top: 1px solid #f0f3f8;
+    padding-top: 14px;
+}
+
+.btn-card {
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-card.aceptar {
+    background: rgba(14, 175, 102, 0.1);
+    color: rgb(6, 132, 78);
+}
+
+.btn-card.aceptar:hover {
+    background: rgb(14, 175, 102);
+    color: #fff;
+}
+
+.btn-card.negar {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.btn-card.negar:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-card.eliminar {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.btn-card.eliminar:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-card.regresar {
+    background: rgba(255, 165, 0, 0.1);
+    color: #e67e22;
+}
+
+.btn-card.regresar:hover {
+    background: #e67e22;
+    color: #fff;
+}
+
+.btn-card.codigo {
+    background: rgba(107, 98, 255, 0.1);
+    color: rgb(107, 98, 255);
+}
+
+.btn-card.codigo:hover {
+    background: rgb(107, 98, 255);
+    color: #fff;
+}
+
+/* ====================================================
+   BADGE DE ESTADO EN CARD
+   ==================================================== */
+.card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+.card-badge.aceptado {
+    background: rgba(14, 175, 102, 0.12);
+    color: rgb(6, 132, 78);
+}
+
+.card-badge.rechazado {
+    background: rgba(231, 76, 60, 0.12);
+    color: #c0392b;
+}
+
+.card-badge.pendiente {
+    background: rgba(255, 165, 0, 0.15);
+    color: #d35400;
+}
+
+/* ====================================================
+   SKELETON
+   ==================================================== */
+.card-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 180px;
+    border-radius: 20px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ====================================================
+   MENSAJE VACÍO
+   ==================================================== */
+.no-data {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #8a94a6;
+    font-size: 1.05rem;
+}
+
+.no-data::before {
+    content: "📭";
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+/* ====================================================
+   MODAL OVERLAY
+   ==================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 26, 51, 0.5);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px 28px 22px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+    border: 1px solid rgba(6, 132, 78, 0.08);
+}
+
+.modal-overlay.active .modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.modal-box-lg {
+    max-width: 560px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal-box-success {
+    max-width: 440px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal-header-custom {
+    padding: 22px 26px 18px;
+    border-bottom: 1px solid #eef1f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0b1a33;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+}
+
+.modal-subtitle {
+    font-size: 0.85rem;
+    color: #8a94a6;
+    font-weight: 500;
+}
+
+.btn-close-modal {
+    background: #f0f3f8;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 1rem;
+    color: #4a5268;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.btn-close-modal:hover {
+    background: #e3e8f0;
+    color: #1a1e2b;
+}
+
+.modal-body-custom {
+    padding: 20px 26px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body-success {
+    text-align: center;
+}
+
+.modal-footer-custom {
+    padding: 18px 26px;
+    border-top: 1px solid #eef1f6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #fafbfd;
+}
+
+/* ====================================================
+   BOTONES
+   ==================================================== */
+.btn {
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: rgb(14, 175, 102);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(14, 175, 102, 0.25);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: rgb(12, 155, 90);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(14, 175, 102, 0.35);
+}
+
+.btn-secondary {
+    background: #f0f3f8;
+    color: #4a5268;
+}
+
+.btn-secondary:hover {
+    background: #e3e8f0;
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ====================================================
+   MODAL INPUT + LISTA DE CASAS
+   ==================================================== */
+.modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e3e8f0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #1a1e2b;
+    background: #f9fafc;
+    transition: 0.2s;
+    outline: none;
+    margin-bottom: 14px;
+}
+
+.modal-input:focus {
+    border-color: rgb(14, 175, 102);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(14, 175, 102, 0.15);
+}
+
+.casa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.casa-item {
+    padding: 14px 16px;
+    border: 1.5px solid #e3e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.9rem;
+    color: #1a1e2b;
+    font-weight: 500;
+}
+
+.casa-item:hover {
+    background: rgba(6, 132, 78, 0.04);
+    border-color: rgba(6, 132, 78, 0.3);
+}
+
+.casa-item.selected {
+    background: rgba(14, 175, 102, 0.08);
+    border-color: rgb(14, 175, 102);
+    color: rgb(6, 132, 78);
+    font-weight: 600;
+}
+
+/* ====================================================
+   MODAL ÉXITO
+   ==================================================== */
+.success-text {
+    font-size: 0.95rem;
+    color: #4a5268;
+    margin-bottom: 18px;
+}
+
+.success-code {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: rgba(107, 98, 255, 0.08);
+    border: 2px dashed rgb(107, 98, 255);
+    border-radius: 16px;
+    padding: 24px 18px;
+    color: rgb(107, 98, 255);
+    word-break: break-word;
+    font-family: 'Courier New', monospace;
+}
+
+.success-note {
+    margin-top: 16px;
+    color: #8a94a6;
+    font-size: 0.85rem;
+}
+
+/* ====================================================
+   RESPONSIVE
+   ==================================================== */
+@media (max-width: 700px) {
+    .virtual-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .adminqr-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+
+    .search-wrapper {
+        max-width: 100%;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .condo-name {
+        font-size: 0.8rem;
+        padding: 4px 12px;
+    }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guardian Virtual</title>
+    <link rel="stylesheet" href="styles/virtualmain.css" />
+    <!-- Google Font (opcional) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="virtual-header">
+        <div class="header-left">
+            <span class="logo">🛡️ Guardian Virtual</span>
+            <span class="badge-virtual">Knovo</span>
+        </div>
+        <div class="header-right">
+            <span class="condo-name" id="condoName">Cargando...</span>
+            <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="virtual-main">
+
+        <!-- Top: buscador + acciones -->
+        <section class="toolbar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar casa, residente..." class="search-input" />
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" id="btnAgregarCasa">➕ Agregar Casa</button>
+                <button class="btn btn-secondary-outline" id="btnImportarExcel">📥 Importar Excel</button>
+                <button class="btn btn-secondary-outline" id="btnReportesQR">📊 Reportes QR</button>
+                <button class="btn btn-knovo" id="btnKnovo">🔮 Knovo</button>
+            </div>
+        </section>
+
+        <!-- Grid de casas (cards) -->
+        <section class="cards-grid" id="cardsGrid">
+            <!-- Aquí se renderizan las cards con JS -->
+        </section>
+
+    </main>
+    
+        <!-- ==================== MODAL AGREGAR/EDITAR CASA ==================== -->
+    <div class="modal-overlay" id="modalCasa">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">Agregar Casa</h3>
+
+            <label class="modal-label" for="modalInput">Nombre de la casa</label>
+            <input
+                type="text"
+                id="modalInput"
+                class="modal-input"
+                placeholder="Ej: Casa 101"
+                maxlength="50"
+                autocomplete="off"
+            />
+
+            <p class="modal-error" id="modalError"></p>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
+                <button class="btn btn-primary" id="modalAccept">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ==================== MODAL VER RESIDENTES ==================== -->
+    <div class="modal-overlay" id="modalResidentes">
+        <div class="modal-box modal-box-lg">
+            <div class="modal-header-custom">
+                <div>
+                    <h3 class="modal-title" id="modalResidentesTitle">Residentes</h3>
+                    <p class="modal-subtitle" id="modalResidentesCasa">Casa 101</p>
+                </div>
+                <button class="btn-close-modal" id="modalResidentesClose">✕</button>
+            </div>
+
+            <div class="residentes-list" id="residentesList">
+                <!-- Aquí se renderizan los residentes -->
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn btn-primary" id="btnAgregarResidente" style="display: none;">➕ Agregar Residente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL AGREGAR RESIDENTE ==================== -->
+    <div class="modal-overlay" id="modalNuevoResidente">
+        <div class="modal-box">
+            <h3 class="modal-title">Agregar Residente</h3>
+
+            <label class="modal-label" for="resNombre">Nombre</label>
+            <input type="text" id="resNombre" class="modal-input" placeholder="Ej: Juan Pérez" maxlength="80" autocomplete="off" />
+
+            <label class="modal-label" for="resVehiculo" style="margin-top:14px;">Vehículo</label>
+            <input type="text" id="resVehiculo" class="modal-input" placeholder="Ej: Audi 2016" maxlength="80" autocomplete="off" />
+
+            <label class="modal-label" for="resTag" style="margin-top:14px;">Tag (0 - 16,777,215)</label>
+            <input type="number" id="resTag" class="modal-input" placeholder="Ej: 234596" min="0" max="16777215" />
+
+            <div class="switch-row">
+                <span class="switch-label">Permiso de acceso</span>
+                <label class="switch">
+                    <input type="checkbox" id="resPermiso" checked />
+                    <span class="switch-slider"></span>
+                </label>
+            </div>
+
+            <p class="modal-error" id="modalResError"></p>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="modalResCancel">Cancelar</button>
+                <button class="btn btn-primary" id="modalResAccept">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ==================== MODAL KNOVO ==================== -->
+    <div class="modal-overlay" id="modalKnovo">
+        <div class="modal-box modal-box-knovo">
+            <div class="knovo-header">
+                <h2 class="knovo-title">🔮 Knovo</h2>
+                <button class="btn-close-modal" id="knovoClose">✕</button>
+            </div>
+
+            <div class="knovo-info">
+                <p class="knovo-code" id="knovoCode">Cargando código...</p>
+            </div>
+
+            <div class="knovo-botones">
+                <a href="adminqrvirtual.html?tipo=aceptados" class="btn-knovo-opcion">
+                    <span class="knovo-icon">✅</span>
+                    <span class="knovo-label">Aceptados</span>
+                </a>
+                <a href="adminqrvirtual.html?tipo=rechazados" class="btn-knovo-opcion">
+                    <span class="knovo-icon">❌</span>
+                    <span class="knovo-label">Rechazados</span>
+                </a>
+                <a href="adminqrvirtual.html?tipo=pendientes" class="btn-knovo-opcion">
+                    <span class="knovo-icon">⏳</span>
+                    <span class="knovo-label">Pendientes</span>
+                </a>
+                <a href="adminqrvirtual.html?tipo=noticias" class="btn-knovo-opcion">
+                    <span class="knovo-icon">📋</span>
+                    <span class="knovo-label">Noticias</span>
+                </a>
+            </div>
+
+            <button class="btn btn-secondary btn-knovo-cerrar" id="knovoCerrar">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+     <script src="scripts/config.js"></script>
+    <script src="scripts/virtualmain.js"></script>
+</body>
+</html>

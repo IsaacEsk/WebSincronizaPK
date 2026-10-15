@@ -233,14 +233,22 @@ function mostrarPresalaCondominios(condominios, user) {
 // }
 
 // Función pa' cuando seleccione un condominio
+// Función pa' cuando seleccione un condominio
 function seleccionarCondominio(condoId) {
-        const condominios = JSON.parse(sessionStorage.getItem('condominiosUsuario'));
+    const condominios = JSON.parse(sessionStorage.getItem('condominiosUsuario'));
     const condoSeleccionado = condominios.find(c => c.id === condoId);
     
-    //console.log("Condominio seleccionado:", condoSeleccionado);
+    console.log("Condominio seleccionado:", condoSeleccionado);
     sessionStorage.setItem('condominioSeleccionado', JSON.stringify(condoSeleccionado));
     
-    window.location.href = `main.html`;
+    // 🔥 Aquí está el vergazo: decidimos a dónde va
+    if (condoSeleccionado.isvirtual === true) {
+        // Si es virtual, lo mandamos a la nueva página
+        window.location.href = 'virtualmain.html';
+    } else {
+        // Si no es virtual, se va al main normal
+        window.location.href = 'main.html';
+    }
 }
 
  // Delegación de eventos para el botón de logout (por ser dinámico)

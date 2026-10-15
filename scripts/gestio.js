@@ -26,6 +26,11 @@ const editForm = document.getElementById('editForm');
 const newCountModal = document.getElementById('newCountModal');
 const newCondoModal = document.getElementById('newCondoModal');
 
+const newCondoVirtual = document.getElementById('newCondoVirtual');
+const virtualFieldsContainer = document.getElementById('virtualFieldsContainer');
+const newCondoIdKnovo = document.getElementById('newCondoIdKnovo');
+const newCondoCodigoActivacion = document.getElementById('newCondoCodigoActivacion');
+
 // ========== INICIALIZACIÓN ========== //
 document.addEventListener('DOMContentLoaded', async () => {
     // Cargar administradores del backend
@@ -33,7 +38,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     await cargarCondominios();
     setupEventListeners();
+    // Listener del switch Virtual
+    if (newCondoVirtual) {
+        newCondoVirtual.addEventListener('change', toggleCamposVirtuales);
+    }
+
 });
+
+// ============================================================
+//  TOGGLE CAMPOS VIRTUALES
+// ============================================================
+function toggleCamposVirtuales() {
+    const activo = newCondoVirtual.checked;
+
+    // Mostrar/ocultar campos
+    if (activo) {
+        virtualFieldsContainer.classList.remove('hidden');
+    } else {
+        virtualFieldsContainer.classList.add('hidden');
+        // Limpiar campos al desactivar
+        if (newCondoIdKnovo) newCondoIdKnovo.value = '';
+        if (newCondoCodigoActivacion) newCondoCodigoActivacion.value = '';
+        // Limpiar errores
+        limpiarErroresVirtuales();
+    }
+
+    // Indicador visual en el row
+    const rowModal = document.querySelector('.switch-row-modal');
+    if (rowModal) {
+        rowModal.classList.toggle('active', activo);
+    }
+}
+
+// ============================================================
+//  LIMPIAR ERRORES DE CAMPOS VIRTUALES
+// ============================================================
+function limpiarErroresVirtuales() {
+    const campos = [
+        { input: newCondoIdKnovo, errorId: 'newCondoIdKnovoError' },
+        { input: newCondoCodigoActivacion, errorId: 'newCondoCodigoActivacionError' }
+    ];
+
+    campos.forEach(({ input, errorId }) => {
+        if (input) {
+            input.classList.remove('input-error');
+        }
+        const errorEl = document.getElementById(errorId);
+        if (errorEl) errorEl.textContent = '';
+    });
+}
 
 // ========== CARGA DE DATOS ========== //
 async function cargarAdministradores() {
@@ -132,10 +185,17 @@ function crearTarjetaCondominio(condo) {
     const statusEmoji = isActive ? '🟢' : '🔴';
     const statusText = isActive ? 'Activo' : 'Inactivo';
     
+    // 🔥 NUEVO: Distintivo Virtual/Físico
+    const isVirtual = condo.isvirtual === true;
+    const tipoClass = isVirtual ? 'virtual' : 'fisico';
+    const tipoEmoji = isVirtual ? '🔮' : '🏢';
+    const tipoText = isVirtual ? 'Virtual' : 'Físico';
+
     card.innerHTML = `
         <div class="condo-card-header">
             <div class="condo-card-name">🏢 ${condo.name}</div>
             <div class="condo-card-badge ${statusClass}">${statusEmoji} ${statusText}</div>
+            <div class="condo-card-badge tipo-badge ${tipoClass}">${tipoEmoji} ${tipoText}</div>
         </div>
         <div class="condo-card-body">
             <div class="condo-info-row">
@@ -573,24 +633,39 @@ function logoutAdmin() {
 
 // ========== NUEVO CONDOMINIO ========== //
 async function abrirNuevoCondominio() {
-    // Cargar administradores actualizados
     await cargarAdministradores();
-    
-    // Establecer vigencia por defecto (1 año desde hoy)
+
     const hoy = new Date();
     const unAno = new Date(hoy.getFullYear() + 1, hoy.getMonth(), hoy.getDate());
     const fechaFormato = unAno.toISOString().split('T')[0];
-    
+
     document.getElementById('newCondoName').value = '';
     document.getElementById('newCondoAdmin').value = '';
     document.getElementById('newCondoVigencia').value = fechaFormato;
-    
+
+    // 🔥 Resetear switch y campos virtuales
+    if (newCondoVirtual) newCondoVirtual.checked = false;
+    if (newCondoIdKnovo) newCondoIdKnovo.value = '';
+    if (newCondoCodigoActivacion) newCondoCodigoActivacion.value = '';
+    if (virtualFieldsContainer) virtualFieldsContainer.classList.add('hidden');
+
+    // Quitar indicador visual
+    const rowModal = document.querySelector('.switch-row-modal');
+    if (rowModal) rowModal.classList.remove('active');
+
+    limpiarErroresVirtuales();
+
     newCondoModal.classList.remove('hidden');
 }
 
 function cerrarModalNuevoCondo() {
     newCondoModal.classList.add('hidden');
     document.getElementById('newCondoForm').reset();
+
+    // Resetear switch y campos virtuales
+    if (newCondoVirtual) newCondoVirtual.checked = false;
+    if (virtualFieldsContainer) virtualFieldsContainer.classList.add('hidden');
+    limpiarErroresVirtuales();
 }
 
 async function guardarNuevoCondominio() {
@@ -634,13 +709,45 @@ async function guardarNuevoCondominio() {
         vigenciaEl.classList.add('input-error');
         document.getElementById('newCondoVigenciaError').textContent = 'Selecciona una fecha de vigencia';
         hasError = true;
-    } else {
+    } 
+    
+    else {
         const fechaSeleccionada = new Date(vigencia);
         const hoy = new Date();
         const hoyStart = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
         if (fechaSeleccionada <= hoyStart) {
             vigenciaEl.classList.add('input-error');
             document.getElementById('newCondoVigenciaError').textContent = 'La vigencia debe ser una fecha futura';
+            hasError = true;
+        }
+    }
+
+    // 🔥 Validaciones de campos virtuales
+    const esVirtual = newCondoVirtual.checked;
+
+    if (esVirtual) {
+        const idKnovoVal = newCondoIdKnovo.value.trim();
+        const codigoActivacionVal = newCondoCodigoActivacion.value.trim();
+
+        // ID Knovo
+        if (!idKnovoVal) {
+            newCondoIdKnovo.classList.add('input-error');
+            document.getElementById('newCondoIdKnovoError').textContent = 'El ID Knovo es obligatorio';
+            hasError = true;
+        } else if (!/^\d+$/.test(idKnovoVal)) {
+            newCondoIdKnovo.classList.add('input-error');
+            document.getElementById('newCondoIdKnovoError').textContent = 'Solo se permiten números';
+            hasError = true;
+        }
+
+        // Código de Activación
+        if (!codigoActivacionVal) {
+            newCondoCodigoActivacion.classList.add('input-error');
+            document.getElementById('newCondoCodigoActivacionError').textContent = 'El código de activación es obligatorio';
+            hasError = true;
+        } else if (!/^\d+$/.test(codigoActivacionVal)) {
+            newCondoCodigoActivacion.classList.add('input-error');
+            document.getElementById('newCondoCodigoActivacionError').textContent = 'Solo se permiten números';
             hasError = true;
         }
     }
@@ -665,13 +772,44 @@ async function guardarNuevoCondominio() {
             submitBtn.textContent = 'Creando...';
         }
 
+        // const payload = {
+        //     name: nombre,
+        //     deleted_at: new Date(vigencia).toISOString(),
+        //     idadmin: parseInt(adminId),
+        //     isvirtual: esVirtual
+        // };
+
+        // // 🔥 Agregar campos virtuales si aplica
+        // if (esVirtual) {
+        //     payload.idKnovo = parseInt(newCondoIdKnovo.value.trim(), 10);
+        //     payload.codigoActivacionKnovo = newCondoCodigoActivacion.value.trim();
+        // }
+
+        // const response = await fetch(`${BACKEND_HOST}/api/condominios`, {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(payload)
+        // });
+        // 🔥 Construir payload base
         const payload = {
             name: nombre,
             deleted_at: new Date(vigencia).toISOString(),
             idadmin: parseInt(adminId)
         };
 
-        const response = await fetch(`${BACKEND_HOST}/api/condominios`, {
+        // 🔥 Si es virtual, agregar campos extra
+        const endpoint = esVirtual 
+            ? `${BACKEND_HOST}/api/knovo/condominios`      // ← Endpoint nuevo
+            : `${BACKEND_HOST}/api/condominios`;            // ← Endpoint original
+
+        if (esVirtual) {
+            payload.idKnovo = parseInt(newCondoIdKnovo.value.trim(), 10);
+            payload.codigoActivacionKnovo = newCondoCodigoActivacion.value.trim();
+        }
+
+        // ... validaciones ...
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Knovo · Admin</title>
+    <link rel="stylesheet" href="styles/adminqrvirtual.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="virtual-header">
+        <div class="header-left">
+            <span class="logo">🛡️ Guardian Virtual</span>
+            <span class="badge-virtual">Knovo</span>
+        </div>
+        <div class="header-right">
+            <span class="condo-name" id="condoName">Cargando...</span>
+            <button class="btn-back" onclick="window.location.href='virtualmain.html'">⬅</button>
+        </div>
+    </header>
+
+    <!-- ==================== CONTENIDO ==================== -->
+    <main class="adminqr-main">
+
+        <!-- Título y buscador -->
+        <section class="adminqr-toolbar">
+            <h1 class="adminqr-title" id="titulo-seccion">Knovo</h1>
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="buscador-cards" class="search-input" placeholder="Buscar por nombre o domicilio..." />
+            </div>
+        </section>
+
+        <!-- Grid de cards -->
+        <section class="cards-grid" id="cards-container">
+            <!-- Cards generadas dinámicamente desde JS -->
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL: SELECCIONAR CASA ==================== -->
+    <div class="modal-overlay" id="casa-select-modal">
+        <div class="modal-box modal-box-lg">
+            <div class="modal-header-custom">
+                <div>
+                    <h3 class="modal-title">Seleccionar Casa</h3>
+                    <p class="modal-subtitle">Elige la casa del residente pendiente</p>
+                </div>
+                <button class="btn-close-modal" id="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <input type="text" id="modal-casa-search" class="modal-input" placeholder="Buscar dirección..." autocomplete="off" />
+                <div id="modal-casa-list" class="casa-list"></div>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" id="modal-cancel-btn">Cancelar</button>
+                <button class="btn btn-primary" id="modal-aceptar-btn" disabled>Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: ÉXITO (código) ==================== -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-box modal-box-success">
+            <div class="modal-header-custom">
+                <h3 class="modal-title">Código de Validación</h3>
+                <button class="btn-close-modal" id="success-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body-custom modal-body-success">
+                <p class="success-text">El código de validación para el usuario aceptado es:</p>
+                <div id="success-code-text" class="success-code">---</div>
+                <p class="success-note">Cópialo y entrégalo al usuario.</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn btn-primary" id="success-ok-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/adminqrvirtual.js"></script>
+</body>
+</html>

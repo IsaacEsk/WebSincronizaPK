@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reportes QR · Guardian Virtual</title>
+    <link rel="stylesheet" href="styles/reportesqrvirtual.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="virtual-header">
+        <div class="header-left">
+            <span class="logo">🛡️ Guardian Virtual</span>
+            <span class="badge-virtual">Reportes</span>
+        </div>
+        <div class="header-right">
+            <span class="condo-name" id="condoName">Cargando...</span>
+            <button class="btn-back" onclick="window.location.href='virtualmain.html'">⬅</button>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="reportes-main">
+
+        <!-- ========== FILTROS ========== -->
+        <section class="filtros-card">
+            <h2 class="filtros-title">🔎 Filtros</h2>
+
+            <div class="filtros-grid">
+                <div class="filtro-group">
+                    <label for="filtroTipo">Tipo</label>
+                    <select id="filtroTipo">
+                        <option value="">Todos</option>
+                        <option value="valido">✅ Válidos</option>
+                        <option value="invalido">❌ Inválidos</option>
+                        <option value="basura">🗑️ Basura</option>
+                    </select>
+                </div>
+
+                <div class="filtro-group">
+                    <label for="filtroDesde">Desde</label>
+                    <input type="date" id="filtroDesde" />
+                </div>
+
+                <div class="filtro-group">
+                    <label for="filtroHasta">Hasta</label>
+                    <input type="date" id="filtroHasta" />
+                </div>
+
+                <div class="filtro-actions">
+                    <button class="btn btn-primary" id="btnAplicarFiltros">🔍 Aplicar</button>
+                    <button class="btn btn-secondary-outline" id="btnLimpiarFiltros">🧹 Limpiar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== RESUMEN ========== -->
+        <section class="resumen-grid" id="resumenGrid"></section>
+
+        <!-- ========== TABLA ========== -->
+        <section class="tabla-card">
+            <div class="tabla-header">
+                <h2 class="tabla-title">📋 Reportes</h2>
+                <div class="tabla-info">
+                    <span id="totalReportes">0 reportes</span>
+                    <button class="btn btn-secondary-outline" id="btnExportar">📥 Exportar Excel</button>
+                </div>
+            </div>
+
+            <!-- 🔍 Buscador en la tabla -->
+            <div class="tabla-buscador">
+                <span class="tabla-buscador-icon">🔍</span>
+                <input 
+                    type="text" 
+                    id="buscadorTabla" 
+                    class="tabla-buscador-input" 
+                    placeholder="Buscar en los reportes (residente, invitado, casa, placa, motivo...)" 
+                    autocomplete="off"
+                />
+                <button class="tabla-buscador-clear" id="buscadorClear" title="Limpiar">✕</button>
+            </div>
+
+            <div class="tabla-wrapper">
+                <table class="tabla-reportes">
+                    <thead>
+                        <tr>
+                            <th>Fecha/Hora</th>
+                            <th>Tipo</th>
+                            <th>Residente</th>
+                            <th>Invitado</th>
+                            <th>Casa</th>
+                            <th>Placa</th>
+                            <th>Tipo QR</th>
+                            <th>E/S</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="paginacion" id="paginacion">
+                <button class="btn-pag" id="btnPrev">⬅ Anterior</button>
+                <span class="pag-info" id="pagInfo">Página 1</span>
+                <button class="btn-pag" id="btnNext">Siguiente ➡</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/reportesqrvirtual.js"></script>
+</body>
+</html>

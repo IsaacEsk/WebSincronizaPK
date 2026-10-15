@@ -160,6 +160,50 @@
                         <input type="date" id="newCondoVigencia" required>
                         <div class="error-text" id="newCondoVigenciaError"></div>
                     </div>
+
+                    <!-- 🔥 NUEVO: Switch de base de datos virtual -->
+                    <div class="form-group switch-form-group">
+                        <div class="switch-row-modal">
+                            <div class="switch-label-group">
+                                <span class="switch-label-title">Base de datos virtual</span>
+                                <span class="switch-label-hint">Habilitar si este condominio usará Base virtual</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="newCondoVirtual" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 🔥 NUEVO: Campos extra (ocultos por defecto) -->
+                    <div id="virtualFieldsContainer" class="virtual-fields hidden">
+                        <div class="form-group">
+                            <label for="newCondoIdKnovo">ID Knovo:</label>
+                            <input 
+                                type="text" 
+                                id="newCondoIdKnovo" 
+                                placeholder="Ej: 127" 
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="10"
+                                autocomplete="off"
+                            >
+                            <div class="error-text" id="newCondoIdKnovoError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newCondoCodigoActivacion">Código de Activación Knovo:</label>
+                            <input 
+                                type="text" 
+                                id="newCondoCodigoActivacion" 
+                                placeholder="Ej: 87236549" 
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="30"
+                                autocomplete="off"
+                            >
+                            <div class="error-text" id="newCondoCodigoActivacionError"></div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
