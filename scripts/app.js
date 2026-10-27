@@ -510,6 +510,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'Código Condominio no disponible';
         }
 
+        const noticiasKnovoButton = document.getElementById('btnNoticiasKnovo');
+        if (noticiasKnovoButton) {
+            const verificarDisponibilidadNoticiasKnovo = async () => {
+                try {
+                    const response = await fetch(`${BACKEND_HOST}/api/check-table?tableName=knovo`);
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const tableExists = result?.data?.[0]?.exists;
+                    if (typeof tableExists !== 'boolean') {
+                        throw new Error('Respuesta inválida al verificar la tabla KNOVO');
+                    }
+
+                    noticiasKnovoButton.hidden = !tableExists;
+                } catch (error) {
+                    console.error('Error al verificar la disponibilidad de Noticias KNOVO:', error);
+                }
+            };
+
+            verificarDisponibilidadNoticiasKnovo();
+        }
+
         // (Si necesitas actualizar otros elementos, los agregamos aquí)
     } else {
         console.error('No se encontraron datos del condominio');

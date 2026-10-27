@@ -688,6 +688,10 @@ a.btn-reporte:hover {
     text-decoration: none !important;
 }
 
+.btn-knovo-modal[hidden] {
+    display: none;
+}
+
 .btn-knovo-modal:hover { 
     background: #8e44ad; 
     transform: translateX(5px); 

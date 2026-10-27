@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias KNOVO</title>
+    <link rel="stylesheet" href="styles/noticiasKnovo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="noticias-header">
+        <div class="header-brand">
+            <span class="brand-logo">🛡️ Noticias Knovo</span>
+            <span class="header-badge">Noticias</span>
+        </div>
+        <div class="header-actions">
+            <span class="condo-name" id="condoName">Cargando condominio...</span>
+            <a class="btn-back" href="main.html" aria-label="Volver al inicio" title="Volver al inicio">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="noticias-main">
+        <section class="noticias-toolbar">
+            <div>
+                <p class="eyebrow">COMUNICACIÓN DEL CONDOMINIO</p>
+                <h1>Noticias</h1>
+                <p class="noticias-subtitle">Consulta los avisos publicados para tu comunidad.</p>
+            </div>
+            <button class="btn-add" type="button" id="btnAgregarNoticia">
+                <i class="fas fa-plus"></i>
+                Agregar noticia
+            </button>
+        </section>
+
+        <section class="noticias-section" aria-labelledby="listaNoticiasTitle" aria-live="polite">
+            <div class="section-heading">
+                <h2 id="listaNoticiasTitle"><i class="fas fa-bullhorn"></i> Noticias publicadas</h2>
+                <span class="news-count" id="newsCount">0 noticias</span>
+            </div>
+            <p class="noticias-status" id="noticiasStatus">Cargando noticias...</p>
+            <div class="news-list" id="newsList"></div>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="modalNoticia" hidden>
+        <section class="news-modal" role="dialog" aria-modal="true" aria-labelledby="modalNoticiaTitle">
+            <header class="news-modal-header">
+                <div>
+                    <p class="eyebrow">COMUNICACIÓN DEL CONDOMINIO</p>
+                    <h2 id="modalNoticiaTitle">Agregar noticia</h2>
+                </div>
+                <button class="modal-close" id="btnCerrarModalNoticia" type="button" aria-label="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+
+            <form id="formNoticia" novalidate>
+                <div class="modal-fields">
+                    <div class="form-field">
+                        <label for="noticiaTitulo">Título <span aria-hidden="true">*</span></label>
+                        <input
+                            id="noticiaTitulo"
+                            name="titulo"
+                            type="text"
+                            maxlength="100"
+                            required
+                            autocomplete="off"
+                            placeholder="Escribe el título de la noticia"
+                        >
+                        <div class="field-meta">
+                            <span class="field-error" id="errorTitulo" aria-live="polite"></span>
+                            <span class="character-count" id="contadorTitulo">0/100</span>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="noticiaCategoria">Categoría <span aria-hidden="true">*</span></label>
+                        <select id="noticiaCategoria" name="categoria" required>
+                            <option value="">Cargando categorías...</option>
+                        </select>
+                        <span class="field-error" id="errorCategoria" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="noticiaNota">Nota <span aria-hidden="true">*</span></label>
+                        <textarea
+                            id="noticiaNota"
+                            name="nota"
+                            maxlength="200"
+                            rows="5"
+                            required
+                            placeholder="Escribe el contenido de la noticia"
+                        ></textarea>
+                        <div class="field-meta">
+                            <span class="field-error" id="errorNota" aria-live="polite"></span>
+                            <span class="character-count" id="contadorNota">0/200</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="modal-feedback" id="modalNoticiaFeedback" role="status" aria-live="polite" hidden></p>
+                <footer class="news-modal-actions">
+                    <button class="btn-cancel" id="btnCancelarNoticia" type="button">Cancelar</button>
+                    <button class="btn-save" id="btnGuardarNoticia" type="submit">
+                        <i class="fas fa-save" aria-hidden="true"></i>
+                        Guardar noticia
+                    </button>
+                </footer>
+            </form>
+        </section>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/noticiasKnovo.js"></script>
+</body>
+</html>
