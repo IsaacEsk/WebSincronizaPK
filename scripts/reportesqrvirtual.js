@@ -6,6 +6,43 @@
 // ---------- CONFIGURACIÓN ----------
 const API_URL = window.BACKEND_HOST || 'http://localhost:3000';
 
+
+const originalFetch = window.fetch;
+
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
+window.fetch = async (url, options = {}) => {
+  // 1. Timeout configurable (default: 60 segundos)
+  const timeout = options.timeout || 60000; 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
+  const newOptions = {
+    ...options,
+    headers: {
+      ...options.headers,
+      'x-mqtt-topic': 'reportesqrvistual', // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
+    },
+    signal: controller.signal // <- Signal para el timeout
+  };
+
+  try {
+    const response = await originalFetch(url, newOptions);
+    clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+      throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+    }
+    throw error; // Otros errores (CORS, red, etc.)
+  }
+};
+
 // ---------- ESTADO ----------
 let idPostgres = null;
 let idKnovo = null;
@@ -152,7 +189,7 @@ async function cargarReportes() {
         params.append('skip', paginaActual * LIMIT);
 
         const url = `${API_URL}/api/knovo/reportes/${idKnovo}?${params.toString()}`;
-        console.log('📡 Fetch:', url);
+        //console.log('📡 Fetch:', url);
 
         const res = await fetch(url);
         const data = await res.json();
@@ -444,7 +481,7 @@ function exportarExcel() {
     link.download = `reportes_knovo_${idKnovo}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
 
-    console.log('✅ Exportado a CSV (sin columna QR)');
+    //('✅ Exportado a CSV (sin columna QR)');
 }
 
 // ============================================================
@@ -509,7 +546,7 @@ buscadorClear.addEventListener('click', () => {
 
     try {
         idKnovo = await obtenerIdKnovo();
-        console.log('✅ idKnovo:', idKnovo);
+        //console.log('✅ idKnovo:', idKnovo);
 
         await cargarReportes();
         await cargarResumen();

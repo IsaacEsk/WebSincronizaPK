@@ -6,6 +6,41 @@
 // Nuevo: tomar la URL desde config.js o fallback
 const BACKEND_HOST = window.BACKEND_HOST;
 
+const originalFetch = window.fetch;
+
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
+window.fetch = async (url, options = {}) => {
+  // 1. Timeout configurable (default: 60 segundos)
+  const timeout = options.timeout || 60000; 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
+  const newOptions = {
+    ...options,
+    headers: {
+      ...options.headers,
+      'x-mqtt-topic': 'index', // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
+    },
+    signal: controller.signal // <- Signal para el timeout
+  };
+
+  try {
+    const response = await originalFetch(url, newOptions);
+    clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+      throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+    }
+    throw error; // Otros errores (CORS, red, etc.)
+  }
+};
 
 
 // Verificamos si hay condominios en sessionStorage para mostrar la pre-sala directamente
@@ -238,7 +273,7 @@ function seleccionarCondominio(condoId) {
     const condominios = JSON.parse(sessionStorage.getItem('condominiosUsuario'));
     const condoSeleccionado = condominios.find(c => c.id === condoId);
     
-    console.log("Condominio seleccionado:", condoSeleccionado);
+    //console.log("Condominio seleccionado:", condoSeleccionado);
     sessionStorage.setItem('condominioSeleccionado', JSON.stringify(condoSeleccionado));
     
     // 🔥 Aquí está el vergazo: decidimos a dónde va

@@ -63,20 +63,56 @@ function ensureAdminqrSpinnerStyles() {
     document.head.appendChild(style);
 }
 
+// const originalFetch = window.fetch;
+
+// window.fetch = async (url, options = {}) => {
+//   // 1. Timeout configurable (default: 8 segundos)
+//   const timeout = options.timeout || 60000; 
+//   const controller = new AbortController();
+//   const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+//   // 2. Headers personalizados (incluyendo el tuyo)
+//   const newOptions = {
+//     ...options,
+//     headers: {
+//       ...options.headers,
+//       'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+//     },
+//     signal: controller.signal // <- Signal para el timeout
+//   };
+
+//   try {
+//     const response = await originalFetch(url, newOptions);
+//     clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+//     return response;
+//   } catch (error) {
+//     clearTimeout(timeoutId);
+//     if (error.name === 'AbortError') {
+//       console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+//       throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+//     }
+//     throw error; // Otros errores (CORS, red, etc.)
+//   }
+// };
+
 const originalFetch = window.fetch;
 
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
 window.fetch = async (url, options = {}) => {
-  // 1. Timeout configurable (default: 8 segundos)
+  // 1. Timeout configurable (default: 60 segundos)
   const timeout = options.timeout || 60000; 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  // 2. Headers personalizados (incluyendo el tuyo)
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
   const newOptions = {
     ...options,
     headers: {
       ...options.headers,
-      'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+      'x-mqtt-topic': getMqttTopic(), // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
     },
     signal: controller.signal // <- Signal para el timeout
   };
@@ -94,6 +130,7 @@ window.fetch = async (url, options = {}) => {
     throw error; // Otros errores (CORS, red, etc.)
   }
 };
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     ensureAdminqrSpinnerStyles();
@@ -269,7 +306,7 @@ async function loadCards() {
             }
 
             const rawText = await response.text();
-            console.log('residente guardar raw response text:', rawText);
+            //console.log('residente guardar raw response text:', rawText);
             const result = JSON.parse(rawText || '{}');
             if (!result.success) {
                 throw new Error(result.message || 'Error al guardar residente');
@@ -277,11 +314,11 @@ async function loadCards() {
 
             const savedResult = Array.isArray(result.data) ? result.data[0] : result.data;
             idResultadoNuevo = result.idResidente ?? savedResult?.id_resultado ?? savedResult?.d_resultado ?? null;
-            console.log('residente guardar response:', result);
-            console.log('id_resultado guardado:', idResultadoNuevo);
-            console.log('idcoto:', idcoto);
-            console.log('idAlta (usuario pendiente):', personaPendienteAceptacion.id);
-            console.log('idapp (usuario pendiente):', personaPendienteAceptacion.id_app);
+            // console.log('residente guardar response:', result);
+            // console.log('id_resultado guardado:', idResultadoNuevo);
+            // console.log('idcoto:', idcoto);
+            // console.log('idAlta (usuario pendiente):', personaPendienteAceptacion.id);
+            // console.log('idapp (usuario pendiente):', personaPendienteAceptacion.id_app);
 
             const payloadAprobar = {
                 idcoto: idcoto,
@@ -289,7 +326,7 @@ async function loadCards() {
                 idAlta: personaPendienteAceptacion.id,
                 idapp: personaPendienteAceptacion.id_app
             };
-            console.log('payload aprobar usuarios:', payloadAprobar);
+            //console.log('payload aprobar usuarios:', payloadAprobar);
 
             if (!payloadAprobar.idcoto || !payloadAprobar.idresidente || !payloadAprobar.idAlta || !payloadAprobar.idapp) {
                 throw new Error('Faltan datos para aprobar el usuario. Revisa idcoto, idresidente, idAlta o idapp.');
@@ -306,13 +343,13 @@ async function loadCards() {
             }
 
             const resultAprobar = await responseAprobar.json();
-            console.log('usuarios aprobar response:', resultAprobar);
+            //console.log('usuarios aprobar response:', resultAprobar);
             if (!resultAprobar.success) {
                 throw new Error(resultAprobar.message || 'Error al aprobar usuario');
             }
 
             const validationCode = resultAprobar?.data?.password ?? resultAprobar?.data?.codigoActivacion ?? 'No disponible';
-            console.log('Código de validación:', validationCode);
+            //console.log('Código de validación:', validationCode);
 
             if (cardPendienteAceptacion) {
                 cardPendienteAceptacion.remove();
@@ -342,19 +379,19 @@ async function loadCards() {
         const response = await fetch(`${BACKEND_HOST}/api/idcoto`);
         const result = await response.json();
         idcoto = result.data[0].envia;
-        console.log('idcoto:', idcoto);
+        //console.log('idcoto:', idcoto);
 
         // Obtener datos de cotos usando idcoto
         const response2 = await fetch(`${BACKEND_HOST}/api/cotos/${idcoto}`);
         const result2 = await response2.json();
         idcoto_compartida = result2.data[0].id;
-        console.log('idcoto_compartida:', idcoto_compartida);
+        //console.log('idcoto_compartida:', idcoto_compartida);
 
         // Fetch condicional según el tipo
         if (tipo === 'aceptados') {
             const response3 = await fetch(`${BACKEND_HOST}/api/usuarios-app/${idcoto_compartida}`);
             const usuariosAceptados = await response3.json();
-            console.log('usuariosAceptados:', usuariosAceptados);
+            //console.log('usuariosAceptados:', usuariosAceptados);
             personas = [
                 ...usuariosAceptados.data.map(p => ({ ...p, tipo: "aceptados" })),
                 // Mocks para otros tipos (vacíos por ahora)
@@ -362,14 +399,14 @@ async function loadCards() {
         } else if (tipo === 'rechazados') {
             const response4 = await fetch(`${BACKEND_HOST}/api/usuarios-negados/${idcoto_compartida}`);
             const usuariosNegados = await response4.json();
-            console.log('usuariosNegados:', usuariosNegados);
+            //console.log('usuariosNegados:', usuariosNegados);
             personas = [
                 ...usuariosNegados.data.map(p => ({ ...p, tipo: "rechazados" })),
             ];
         } else if (tipo === 'pendientes') {
             const response5 = await fetch(`${BACKEND_HOST}/api/usuarios-procesar/${idcoto_compartida}`);
             const usuariosProcesar = await response5.json();
-            console.log('usuariosProcesar:', usuariosProcesar);
+            //console.log('usuariosProcesar:', usuariosProcesar);
             personas = [
                 ...usuariosProcesar.data.map(p => ({ ...p, tipo: "pendientes" })),
             ];
@@ -468,7 +505,7 @@ async function loadCards() {
                         }
 
                         const result = await response.json();
-                        console.log('Eliminar usuario QR result:', result);
+                        //console.log('Eliminar usuario QR result:', result);
 
                         buttonText.textContent = 'Eliminado';
                         setTimeout(() => {
@@ -506,7 +543,7 @@ async function loadCards() {
                         }
 
                         const result = await response.json();
-                        console.log('Regresar a por procesar result:', result);
+                        //console.log('Regresar a por procesar result:', result);
 
                         if (result.success === false) {
                             throw new Error(result.message || 'No se pudo actualizar el estado.');

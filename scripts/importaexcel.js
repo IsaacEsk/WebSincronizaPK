@@ -5,6 +5,43 @@
 // ---------- CONFIGURACIÓN ----------
 const API_URL = window.BACKEND_HOST || 'http://localhost:3000';
 
+
+const originalFetch = window.fetch;
+
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
+window.fetch = async (url, options = {}) => {
+  // 1. Timeout configurable (default: 60 segundos)
+  const timeout = options.timeout || 60000; 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
+  const newOptions = {
+    ...options,
+    headers: {
+      ...options.headers,
+      'x-mqtt-topic': 'importaexel', // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
+    },
+    signal: controller.signal // <- Signal para el timeout
+  };
+
+  try {
+    const response = await originalFetch(url, newOptions);
+    clearTimeout(timeoutId); // Limpiar timeout si todo sale bien
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error(`⚠️ Fetch timeout después de ${timeout}ms (URL: ${url})`);
+      throw new Error(`El servidor no respondió en ${timeout / 1000} segundos`);
+    }
+    throw error; // Otros errores (CORS, red, etc.)
+  }
+};
+
 // ---------- ESTADO ----------
 let archivoSeleccionado = null;
 
@@ -81,7 +118,7 @@ function manejarArchivo(file) {
     fileSelected.classList.remove('hidden');
     btnUpload.disabled = false;
 
-    console.log('📄 Archivo seleccionado:', file.name, formatearTamano(file.size));
+    //('📄 Archivo seleccionado:', file.name, formatearTamano(file.size));
 }
 
 // ============================================================
@@ -186,7 +223,7 @@ async function importarCasas() {
     try {
         // ---------- 1. Leer el Excel ----------
         const nombresCasas = await leerExcelYExtraerNombres(archivoSeleccionado);
-        console.log('📋 Nombres extraídos:', nombresCasas);
+        //console.log('📋 Nombres extraídos:', nombresCasas);
 
         if (nombresCasas.length === 0) {
             throw new Error('El archivo no contiene nombres de casas en la columna A');

@@ -31,18 +31,22 @@ const getMqttTopic = () => {
 
 const originalFetch = window.fetch;
 
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
 window.fetch = async (url, options = {}) => {
-  // 1. Timeout configurable (default: 8 segundos)
+  // 1. Timeout configurable (default: 60 segundos)
   const timeout = options.timeout || 60000; 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  // 2. Headers personalizados (incluyendo el tuyo)
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
   const newOptions = {
     ...options,
     headers: {
       ...options.headers,
-      'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+      'x-mqtt-topic': getMqttTopic(), // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
     },
     signal: controller.signal // <- Signal para el timeout
   };
@@ -156,7 +160,7 @@ function formatearFechaBonita(fecha) {
 
 // Función para cargar recados de una casa específica (la implementaremos después)
 async function cargarRecadosCasa(casaId) {
-    console.log('Cargando recados para casa ID:', casaId);
+    //console.log('Cargando recados para casa ID:', casaId);
     
     // Aquí está el cambio importante - usamos la clase correcta
     const recadosContainer = document.querySelector('.messages-list');
@@ -167,7 +171,7 @@ async function cargarRecadosCasa(casaId) {
         
         if (result.success && result.data) {
             const recados = result.data;
-            console.log('Recados recibidos:', recados);
+            //console.log('Recados recibidos:', recados);
             
             // Limpiar contenedor antes de agregar nuevos recados
             recadosContainer.innerHTML = '';
@@ -218,7 +222,7 @@ async function cargarRecadosCasa(casaId) {
                 recadosContainer.appendChild(recadoCard);
             });
         } else {
-            console.log('No se encontraron recados o error en la respuesta');
+            //console.log('No se encontraron recados o error en la respuesta');
             recadosContainer.innerHTML = `
                 <div class="no-recados">
                     <i class="fas fa-exclamation-triangle fa-3x"></i>
@@ -254,7 +258,7 @@ const formEditarRecado = document.getElementById('formEditarRecado');
 
 // Función para abrir el modal con los datos del recado
 function editarRecado(recadoData) {
-    console.log('Editando recado:', recadoData);
+   // console.log('Editando recado:', recadoData);
     
     // Convertir de string a objeto si es necesario
     const recado = typeof recadoData === 'string' ? JSON.parse(recadoData) : recadoData;
@@ -288,9 +292,9 @@ async function guardarRecadoEditado() {
     const fechaInicioUTC = fi ? resetearHorasUTC(fi) : null;
     const fechaFinUTC = ff ? resetearHorasUTC(ff) : null;
     
-    console.log("Editando - Hoy UTC:", hoyUTC);
-    console.log("Editando - Fecha inicio UTC:", fechaInicioUTC);
-    console.log("Editando - Diferencia en ms:", fechaInicioUTC - hoyUTC);
+    // console.log("Editando - Hoy UTC:", hoyUTC);
+    // console.log("Editando - Fecha inicio UTC:", fechaInicioUTC);
+    // console.log("Editando - Diferencia en ms:", fechaInicioUTC - hoyUTC);
     
     // Validación 1: El recado debe tener al menos 4 caracteres
     if (recado.length < 4) {
@@ -426,10 +430,10 @@ async function guardarNuevoRecado() {
     const fechaInicioUTC = fi ? resetearHorasUTC(fi) : null;
     const fechaFinUTC = ff ? resetearHorasUTC(ff) : null;
     
-    console.log("Hoy UTC:", hoyUTC);
-    console.log("Fecha inicio UTC:", fechaInicioUTC);
-    console.log("Diferencia en ms:", fechaInicioUTC - hoyUTC);
-    console.log("Es menor?", fechaInicioUTC < hoyUTC);
+    // console.log("Hoy UTC:", hoyUTC);
+    // console.log("Fecha inicio UTC:", fechaInicioUTC);
+    // console.log("Diferencia en ms:", fechaInicioUTC - hoyUTC);
+    // console.log("Es menor?", fechaInicioUTC < hoyUTC);
     
     // Validación 1: El recado debe tener al menos 4 caracteres
     if (recado.length < 4) {

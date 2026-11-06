@@ -43,20 +43,22 @@ const getMqttTopic = () => {
 
 const originalFetch = window.fetch;
 
+// Coloca aquí tu clave (¡Recuerda que debe coincidir con la del backend!)
+const API_KEY_SECRETA = "sk_live_wP7hgt9l0gvgcmi4Rj9pOqMyyPfiB1wI"; 
+
 window.fetch = async (url, options = {}) => {
-
-
-  // 1. Timeout configurable (default: 8 segundos)
+  // 1. Timeout configurable (default: 60 segundos)
   const timeout = options.timeout || 60000; 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  // 2. Headers personalizados (incluyendo el tuyo)
+  // 2. Headers personalizados (incluyendo el de MQTT y el de la API Key)
   const newOptions = {
     ...options,
     headers: {
       ...options.headers,
-      'x-mqtt-topic': getMqttTopic() // <- Tu header personalizado
+      'x-mqtt-topic': getMqttTopic(), // <- Tu header personalizado de siempre
+      'x-api-key': API_KEY_SECRETA     // 👈 AQUÍ metes el nuevo candado
     },
     signal: controller.signal // <- Signal para el timeout
   };
@@ -74,7 +76,6 @@ window.fetch = async (url, options = {}) => {
     throw error; // Otros errores (CORS, red, etc.)
   }
 };
-
 // async function cargarTodoEnUnSoloFetch(idCasa) {
 //     mostrarLoader(true);
 
